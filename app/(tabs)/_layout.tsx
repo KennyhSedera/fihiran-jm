@@ -1,35 +1,112 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useApp } from "@/context/app-context";
+import { StatusBar } from "react-native";
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+export default function TabsLayout() {
+  const { isDark } = useApp();
+
+  const backgroundColor = isDark
+    ? "#17212B"
+    : "#FFFFFF";
+
+  const activeColor = "#173253";
+
+  const inactiveColor = isDark
+    ? "#7E8B98"
+    : "#929BA8";
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
+    <>
+      <StatusBar
+        barStyle={isDark ? "light-content" : "dark-content"}
+        translucent
+        backgroundColor="transparent"
       />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+
+          tabBarStyle: {
+            height: 70,
+            paddingTop: 8,
+            paddingBottom: 8,
+            backgroundColor,
+            borderTopColor: isDark
+              ? "#26323D"
+              : "#E4E7EB",
+          },
+
+          tabBarActiveTintColor: activeColor,
+          tabBarInactiveTintColor: inactiveColor,
+
+          tabBarLabelStyle: {
+            fontSize: 12,
+            fontWeight: "600",
+          },
         }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: "Accueil",
+
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons
+                name="home"
+                size={size}
+                color={color}
+              />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="hymnes"
+          options={{
+            title: "Fihirana",
+
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons
+                name="book"
+                size={size}
+                color={color}
+              />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="favorites"
+          options={{
+            title: "Favoris",
+
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons
+                name="heart"
+                size={size}
+                color={color}
+              />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="settings"
+          options={{
+            title: "Paramètres",
+
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons
+                name="settings"
+                size={size}
+                color={color}
+              />
+            ),
+          }}
+        />
+      </Tabs>
+    </>
   );
 }
