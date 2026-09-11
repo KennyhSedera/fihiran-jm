@@ -3,7 +3,7 @@ import {
   useFonts,
 } from "@expo-google-fonts/patrick-hand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, {
+import {
   createContext,
   ReactNode,
   useContext,
@@ -19,12 +19,11 @@ interface AppContextType {
   setTheme: (theme: ThemeMode) => void;
 
   fontSize: number;
-  increaseFontSize: () => void;
-  decreaseFontSize: () => void;
+  handleChangeFontSize: (value: number) => void;
 
   favorites: string[];
-  toggleFavorite: (id: string, year: string) => void;
-  isFavorite: (id: string, year: string) => boolean;
+  toggleFavorite: (id: string) => void;
+  isFavorite: (id: string) => boolean;
 
   isDark: boolean;
   fontFamily?: string;
@@ -83,7 +82,6 @@ export function AppProvider({
 
       if (savedFavorites) {
         const parsed = JSON.parse(savedFavorites);
-
         if (Array.isArray(parsed)) {
           setFavorites(parsed);
         }
@@ -130,16 +128,12 @@ export function AppProvider({
     );
   }
 
-  function increaseFontSize() {
-    changeFontSize(fontSize + 2);
+  function handleChangeFontSize(fontSize: number) {
+    changeFontSize(fontSize);
   }
 
-  function decreaseFontSize() {
-    changeFontSize(fontSize - 2);
-  }
-
-  async function toggleFavorite(id: string, year: string) {
-    const key = `${id}_${year}`;
+  async function toggleFavorite(id: string,) {
+    const key = id;
 
     const exists = favorites.includes(key);
     const next = exists
@@ -154,8 +148,9 @@ export function AppProvider({
     );
   }
 
-  function isFavorite(id: string, year: string) {
-    return favorites.includes(`${id}_${year}`);
+  function isFavorite(id: string,) {
+
+    return favorites.includes(id);
   }
 
   const isDark =
@@ -167,8 +162,7 @@ export function AppProvider({
       theme,
       setTheme,
       fontSize,
-      increaseFontSize,
-      decreaseFontSize,
+      handleChangeFontSize,
       favorites,
       toggleFavorite,
       isFavorite,

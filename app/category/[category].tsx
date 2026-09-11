@@ -13,6 +13,7 @@ import {
 
 import hymnes from "@/assets/json/fihirana_jm.json";
 import { useApp } from "@/context/app-context";
+import { useAppColors } from "@/hooks/use-color";
 import { Hymn } from "@/types/hymn";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -27,11 +28,7 @@ export default function CategoryScreen() {
     }>();
 
   const { isDark, fontFamily } = useApp();
-
-  const bg = isDark ? "#101820" : "#F5F6F8";
-  const card = isDark ? "#17212B" : "#FFFFFF";
-  const text = isDark ? "#FFFFFF" : "#172033";
-  const muted = isDark ? "#9BA8B4" : "#7D8795";
+  const { bg, card, text, muted, } = useAppColors(isDark);
 
   const decodedCategory =
     decodeURIComponent(category ?? "");
@@ -53,7 +50,7 @@ export default function CategoryScreen() {
       ]}
     >
 
-      {/* <View style={styles.header}>
+      <View style={styles.header}>
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.back}
@@ -74,7 +71,7 @@ export default function CategoryScreen() {
             {hymns.length} hira
           </Text>
         </View>
-      </View> */}
+      </View>
 
       <FlatList
         data={hymns}

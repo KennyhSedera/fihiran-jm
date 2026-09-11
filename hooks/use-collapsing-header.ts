@@ -1,50 +1,57 @@
-import { useRef } from "react";
-import { Animated } from "react-native";
+import Animated, {
+  Extrapolation,
+  interpolate,
+  useAnimatedRef,
+  useAnimatedStyle,
+  useScrollOffset,
+} from "react-native-reanimated";
 
-type Options = {
-  collapseDistance?: number; // distance de scroll (px) pour finir la transition
-};
+export function useCollapsibleHeaderScroll(expandedHeight: number) {
+  const scrollRef = useAnimatedRef<Animated.ScrollView>();
+  const scrollOffset = useScrollOffset(scrollRef);
 
-export function useCollapsingHeader({
-  collapseDistance = 120,
-}: Options = {}) {
-  const scrollY = useRef(new Animated.Value(0)).current;
+  // La carte : rétrécit puis disparaît sur [0, expandedHeight]
+  const expandedStyle = useAnimatedStyle(() => {
+    const height = interpolate(
+      scrollOffset.value,
+      [0, expandedHeight],
+      [expandedHeight, 0],
+      Extrapolation.CLAMP
+    );
 
-  const onScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-    { useNativeDriver: false } // on anime une "height", donc pas de native driver
-  );
+    const opacity = interpolate(
+      scrollOffset.value,
+      [0, expandedHeight * 0.6],
+      [1, 0],
+      Extrapolation.CLAMP
+    );
 
-  const compactTitleOpacity = scrollY.interpolate({
-    inputRange: [collapseDistance * 0.6, collapseDistance],
-    outputRange: [0, 1],
-    extrapolate: "clamp",
+    return { height, opacity };
   });
 
-  const cardOpacity = scrollY.interpolate({
-    inputRange: [0, collapseDistance * 0.6],
-    outputRange: [1, 0],
-    extrapolate: "clamp",
-  });
+  // Le titre compact : apparaît juste quand la carte a fini de disparaître
+  const compactTitleStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      scrollOffset.value,
+      [expandedHeight * 0.7, expandedHeight],
+      [0, 1],
+      Extrapolation.CLAMP
+    );
 
-  const cardHeight = scrollY.interpolate({
-    inputRange: [0, collapseDistance],
-    outputRange: [160, 0],
-    extrapolate: "clamp",
-  });
+    const translateY = interpolate(
+      scrollOffset.value,
+      [expandedHeight * 0.7, expandedHeight],
+      [8, 0],
+      Extrapolation.CLAMP
+    );
 
-  const cardTranslateY = scrollY.interpolate({
-    inputRange: [0, collapseDistance],
-    outputRange: [0, -16],
-    extrapolate: "clamp",
+    return { opacity, transform: [{ translateY }] };
   });
 
   return {
-    scrollY,
-    onScroll,
-    compactTitleOpacity,
-    cardOpacity,
-    cardHeight,
-    cardTranslateY,
+    scrollRef,
+    scrollOffset,
+    expandedStyle,
+    compactTitleStyle,
   };
 }

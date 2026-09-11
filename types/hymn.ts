@@ -8,3 +8,9 @@ export interface Hymn {
   collection: string;
   content: string;
 }
+
+export interface HymnVerse {
+  number: number | null;
+  text: string;
+  isRefrain: boolean;
+}
