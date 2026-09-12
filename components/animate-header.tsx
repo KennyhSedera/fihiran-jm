@@ -1,7 +1,7 @@
 import { useApp } from "@/context/app-context";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import {
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -16,6 +16,7 @@ import Animated, {
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
 import { EdgeInsets } from "react-native-safe-area-context";
 import DraggableFloatingButton from "./draggable-floating-button";
@@ -66,12 +67,19 @@ export default function AnimatedHeader({
   rightButtonIcon,
   draggableButton,
 }: Props) {
-  const topMax = maxHeight + insets.top;
   const topMin = minHeight + insets.top;
-  const range = topMax - topMin;
   const { isDark } = useApp();
 
   const scrollY = useSharedValue(0);
+
+  // maxHeight animé en douceur au lieu d'un saut instantané
+  const animatedMaxHeight = useSharedValue(maxHeight + insets.top);
+
+  useEffect(() => {
+    animatedMaxHeight.value = withTiming(maxHeight + insets.top, {
+      duration: 300,
+    });
+  }, [maxHeight]);
 
   const onScroll = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
@@ -81,77 +89,98 @@ export default function AnimatedHeader({
     }
   });
 
-  const headerStyle = useAnimatedStyle(() => ({
-    height: interpolate(
-      scrollY.value,
-      [0, range],
-      [topMax, topMin],
-      Extrapolation.CLAMP
-    ),
-  }));
+  const headerStyle = useAnimatedStyle(() => {
+    const topMaxAnim = animatedMaxHeight.value;
+    const rangeAnim = topMaxAnim - topMin;
 
-  const headerStyleFixed = useAnimatedStyle(() => ({
-    height: interpolate(
-      scrollY.value,
-      [0, range],
-      [0, 80],
-      Extrapolation.CLAMP
-    ),
-  }));
+    return {
+      height: interpolate(
+        scrollY.value,
+        [0, rangeAnim],
+        [topMaxAnim, topMin],
+        Extrapolation.CLAMP
+      ),
+    };
+  });
 
-  const expandedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(
-      scrollY.value,
-      [0, range * 0.6],
-      [1, 0],
-      Extrapolation.CLAMP
-    ),
-    transform: [
-      {
-        translateY: interpolate(
-          scrollY.value,
-          [0, range],
-          [0, -12],
-          Extrapolation.CLAMP
-        ),
-      },
-    ],
-  }));
+  const headerStyleFixed = useAnimatedStyle(() => {
+    const rangeAnim = animatedMaxHeight.value - topMin;
 
-  const compactNumberStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(
-      scrollY.value,
-      [0, range * 0.3],
-      [0, 1],
-      Extrapolation.CLAMP
-    ),
-    transform: [
-      {
-        translateX: interpolate(
-          scrollY.value,
-          [0, range * 0.3],
-          [8, 0],
-          Extrapolation.CLAMP
-        ),
-      },
-    ],
-  }));
+    return {
+      height: interpolate(
+        scrollY.value,
+        [0, rangeAnim],
+        [0, 80],
+        Extrapolation.CLAMP
+      ),
+    };
+  });
 
-  const iconStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(
-      scrollY.value,
-      [0, range * 0.3],
-      [0, 1],
-      Extrapolation.CLAMP
-    ),
-  }));
+  const expandedStyle = useAnimatedStyle(() => {
+    const rangeAnim = animatedMaxHeight.value - topMin;
+
+    return {
+      opacity: interpolate(
+        scrollY.value,
+        [0, rangeAnim * 0.6],
+        [1, 0],
+        Extrapolation.CLAMP
+      ),
+      transform: [
+        {
+          translateY: interpolate(
+            scrollY.value,
+            [0, rangeAnim],
+            [0, -12],
+            Extrapolation.CLAMP
+          ),
+        },
+      ],
+    };
+  });
+
+  const compactNumberStyle = useAnimatedStyle(() => {
+    const rangeAnim = animatedMaxHeight.value - topMin;
+
+    return {
+      opacity: interpolate(
+        scrollY.value,
+        [0, rangeAnim * 0.3],
+        [0, 1],
+        Extrapolation.CLAMP
+      ),
+      transform: [
+        {
+          translateX: interpolate(
+            scrollY.value,
+            [0, rangeAnim * 0.3],
+            [8, 0],
+            Extrapolation.CLAMP
+          ),
+        },
+      ],
+    };
+  });
+
+  const iconStyle = useAnimatedStyle(() => {
+    const rangeAnim = animatedMaxHeight.value - topMin;
+
+    return {
+      opacity: interpolate(
+        scrollY.value,
+        [0, rangeAnim * 0.3],
+        [0, 1],
+        Extrapolation.CLAMP
+      ),
+    };
+  });
 
   return (
     <View style={{ flex: 1, backgroundColor }}>
       <AnimatedLinearGradient
-        colors={[barColor, isDark ? "#420000" : "#ff7171"] as const}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
+        colors={[barColor, isDark ? "#6e0000" : "#ff7171"] as const}
+        start={{ x: 0.2, y: 0 }}
+        end={{ x: 0.8, y: 1 }}
         style={[styles.header, headerStyle]}
       >
         <Animated.View style={[styles.bar, headerStyleFixed]}>
@@ -214,8 +243,8 @@ export default function AnimatedHeader({
         onScroll,
         scrollEventThrottle: 16,
         contentContainerStyle: {
-          paddingTop: topMax,
-          paddingBottom: 50 + insets.bottom,
+          paddingTop: maxHeight + insets.top,
+          paddingBottom: 100 + insets.bottom,
         },
       })}
 

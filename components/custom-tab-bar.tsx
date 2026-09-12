@@ -52,7 +52,7 @@ export default function CustomTabBar({
       ]}
     >
       <LinearGradient
-        colors={["#cc0000", isDark ? "#420000" : "#ff7171"] as const}
+        colors={["#cc0000", isDark ? "#6e0000" : "#ff7171"] as const}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={[styles.bar, { backgroundColor: card, borderColor: border }]}>
@@ -128,13 +128,13 @@ function TabButton({
         <Ionicons
           name={isFocused ? icon : (`${icon}-outline` as any)}
           size={22}
-          color={isFocused ? isDark ? "#420000" : "#cc0000" : inactiveColor}
+          color={isFocused ? isDark ? "#6e0000" : "#cc0000" : inactiveColor}
         />
 
         {isFocused && (
           <Animated.Text
             numberOfLines={1}
-            style={[styles.label, { color: isDark ? "#420000" : "#cc0000" }, labelStyle]}
+            style={[styles.label, { color: isDark ? "#6e0000" : "#cc0000" }, labelStyle]}
           >
             {label}
           </Animated.Text>
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   label: {
-    color: "#420000",
+    color: "#6e0000",
     fontSize: 11,
     fontWeight: "700",
   },

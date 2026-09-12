@@ -10,18 +10,18 @@ import hymnes from "@/assets/json/fihirana_jm.json";
 import AppHeader from "@/components/app-header";
 import { HymnRow } from "@/components/hymn-row";
 import { useApp } from "@/context/app-context";
+import { useDB } from "@/context/db-context";
 import { useAppColors } from "@/hooks/use-color";
 import { Hymn } from "@/types/hymn";
 
 const data = hymnes as Hymn[];
 
 export default function FavoritesScreen() {
-  const { favorites, isDark, } = useApp();
+  const { isDark, } = useApp();
+  const { favorites } = useDB();
   const { text, muted, } = useAppColors(isDark);
 
-  const favoriteHymns = data
-    .filter((item) => favorites.includes(`${item.id}`))
-    .sort((a, b) => a.number - b.number);
+  const favoriteHymns = favorites;
 
   return (
     <AppHeader
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, },
   headerContainer: { flex: 1, flexDirection: "column", },
   header: { paddingTop: 5, flexDirection: "row", justifyContent: "space-between", alignItems: "center", },
-  headerIcon: { width: 40, height: 40, borderRadius: 15, backgroundColor: "#e6edf59f", alignItems: "center", justifyContent: "center", },
+  headerIcon: { width: 48, height: 48, borderRadius: 15, backgroundColor: "#e6edf59f", alignItems: "center", justifyContent: "center", },
   title: { fontSize: 28, fontWeight: "800", },
   count: { marginTop: 4, fontSize: 13, },
   empty: { alignItems: "center", paddingTop: 100, paddingHorizontal: 30, },

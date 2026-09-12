@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useRef } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useRef } from "react";
 import {
   Animated,
   Dimensions,
@@ -8,27 +9,18 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } =
-  Dimensions.get("window");
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-/**
- * Marge entre le bouton et les bords gauche/droit.
- */
 const EDGE_MARGIN = 15;
-
-/**
- * Marge verticale.
- *
- * Mets 0 si tu veux pouvoir aller complètement
- * en haut et en bas.
- */
 const VERTICAL_MARGIN = 20;
+const STORAGE_KEY_PREFIX = "@draggable_button_position:";
 
 interface Props {
   icon?: keyof typeof Ionicons.glyphMap;
   size?: number;
   onPress?: () => void;
   bg?: string;
+  storageKey?: string;
 }
 
 export default function DraggableFloatingButton({
@@ -36,9 +28,12 @@ export default function DraggableFloatingButton({
   size = 70,
   onPress,
   bg = "#ff0000",
+  storageKey = "default",
 }: Props) {
   const initialX = SCREEN_WIDTH - size - EDGE_MARGIN;
   const initialY = SCREEN_HEIGHT / 2 - size / 2;
+
+  const storageFullKey = `${STORAGE_KEY_PREFIX}${storageKey}`;
 
   const position = useRef(
     new Animated.ValueXY({
@@ -57,15 +52,58 @@ export default function DraggableFloatingButton({
     y: initialY,
   });
 
+  // Charge la position sauvegardée au montage
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadPosition() {
+      try {
+        const saved = await AsyncStorage.getItem(storageFullKey);
+
+        if (!saved || cancelled) return;
+
+        const parsed = JSON.parse(saved) as { x: number; y: number };
+
+        // Re-clamp au cas où la taille d'écran aurait changé (rotation, autre device)
+        const x = Math.max(
+          EDGE_MARGIN,
+          Math.min(SCREEN_WIDTH - size - EDGE_MARGIN, parsed.x)
+        );
+        const y = Math.max(
+          VERTICAL_MARGIN,
+          Math.min(SCREEN_HEIGHT - size - VERTICAL_MARGIN, parsed.y)
+        );
+
+        currentPosition.current = { x, y };
+        startPosition.current = { x, y };
+        position.setValue({ x, y });
+      } catch {
+        // ignore silencieusement, on garde la position par défaut
+      }
+    }
+
+    loadPosition();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [storageFullKey, size]);
+
+  const savePosition = (x: number, y: number) => {
+    AsyncStorage.setItem(storageFullKey, JSON.stringify({ x, y })).catch(
+      () => {
+        // ignore silencieusement
+      }
+    );
+  };
+
   const panResponder = useRef(
     PanResponder.create({
-
       onStartShouldSetPanResponder: () => true,
 
       onMoveShouldSetPanResponder: (_, gestureState) => {
         return (
-          Math.abs(gestureState.dx) > 2 ||
-          Math.abs(gestureState.dy) > 2
+          Math.abs(gestureState.dx) > 2 || Math.abs(gestureState.dy) > 2
         );
       },
 
@@ -77,51 +115,29 @@ export default function DraggableFloatingButton({
       },
 
       onPanResponderMove: (_, gestureState) => {
-        let x =
-          startPosition.current.x +
-          gestureState.dx;
-
-        let y =
-          startPosition.current.y +
-          gestureState.dy;
+        let x = startPosition.current.x + gestureState.dx;
+        let y = startPosition.current.y + gestureState.dy;
 
         x = Math.max(
           EDGE_MARGIN,
-          Math.min(
-            SCREEN_WIDTH - size - EDGE_MARGIN,
-            x
-          )
+          Math.min(SCREEN_WIDTH - size - EDGE_MARGIN, x)
         );
 
         y = Math.max(
           VERTICAL_MARGIN,
-          Math.min(
-            SCREEN_HEIGHT - size - VERTICAL_MARGIN,
-            y
-          )
+          Math.min(SCREEN_HEIGHT - size - VERTICAL_MARGIN, y)
         );
 
-        position.setValue({
-          x,
-          y,
-        });
+        position.setValue({ x, y });
       },
 
       onPanResponderRelease: (_, gestureState) => {
-        let x =
-          startPosition.current.x +
-          gestureState.dx;
-
-        let y =
-          startPosition.current.y +
-          gestureState.dy;
+        let x = startPosition.current.x + gestureState.dx;
+        let y = startPosition.current.y + gestureState.dy;
 
         y = Math.max(
           VERTICAL_MARGIN,
-          Math.min(
-            SCREEN_HEIGHT - size - VERTICAL_MARGIN,
-            y
-          )
+          Math.min(SCREEN_HEIGHT - size - VERTICAL_MARGIN, y)
         );
 
         const centerX = SCREEN_WIDTH / 2;
@@ -129,26 +145,19 @@ export default function DraggableFloatingButton({
         if (x + size / 2 < centerX) {
           x = EDGE_MARGIN;
         } else {
-          x =
-            SCREEN_WIDTH -
-            size -
-            EDGE_MARGIN;
+          x = SCREEN_WIDTH - size - EDGE_MARGIN;
         }
 
-        currentPosition.current = {
-          x,
-          y,
-        };
+        currentPosition.current = { x, y };
 
         Animated.spring(position, {
-          toValue: {
-            x,
-            y,
-          },
+          toValue: { x, y },
           useNativeDriver: true,
           friction: 7,
           tension: 80,
         }).start();
+
+        savePosition(x, y);
       },
     })
   ).current;
@@ -162,9 +171,7 @@ export default function DraggableFloatingButton({
           width: size,
           height: size,
           borderRadius: size / 2,
-
-          transform:
-            position.getTranslateTransform(),
+          transform: position.getTranslateTransform(),
         },
       ]}
     >
@@ -181,11 +188,7 @@ export default function DraggableFloatingButton({
           },
         ]}
       >
-        <Ionicons
-          name={icon}
-          size={size / 2}
-          color="#D8DCE2"
-        />
+        <Ionicons name={icon} size={size / 2} color="#D8DCE2" />
       </TouchableOpacity>
     </Animated.View>
   );

@@ -19,6 +19,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import hymnes from "@/assets/json/fihirana_jm.json";
 import AnimatedHymnHeader from "@/components/animated-hymn-header";
 import { useApp } from "@/context/app-context";
+import { useDB } from "@/context/db-context";
 import { useAppColors } from "@/hooks/use-color";
 import { Hymn } from "@/types/hymn";
 import { formatContent } from "@/utils/hymn.util";
@@ -27,7 +28,8 @@ export default function HymnScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { fontSize, isDark, fontFamily, favorites, toggleFavorite, } = useApp();
+  const { fontSize, isDark, fontFamily } = useApp();
+  const { isFavorite, toggleFavorite } = useDB();
 
   const { hymn, prevHymn, nextHymn } = useMemo(() => {
     const list = hymnes as Hymn[];
@@ -68,7 +70,6 @@ export default function HymnScreen() {
     );
   }
 
-  const isFavorite = favorites.includes(`${hymn.id}`);
   const { bg, card, text, muted, } = useAppColors(isDark);
 
   const content = formatContent(hymn.content);
@@ -89,7 +90,7 @@ export default function HymnScreen() {
           minHeight={45}
           insets={insets}
           backgroundColor={bg}
-          isFavorite={isFavorite}
+          isFavorite={isFavorite(hymn.id)}
           title={hymn.title}
           number={hymn.number}
           category={hymn.category}

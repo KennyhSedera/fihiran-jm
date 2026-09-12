@@ -21,10 +21,6 @@ interface AppContextType {
   fontSize: number;
   handleChangeFontSize: (value: number) => void;
 
-  favorites: string[];
-  toggleFavorite: (id: string) => void;
-  isFavorite: (id: string) => boolean;
-
   isDark: boolean;
   fontFamily?: string;
 }
@@ -34,7 +30,6 @@ const AppContext = createContext<AppContextType | null>(null);
 const STORAGE_KEYS = {
   theme: "@fihirana/theme",
   fontSize: "@fihirana/fontSize",
-  favorites: "@fihirana/favorites",
 };
 
 export function AppProvider({
@@ -44,7 +39,6 @@ export function AppProvider({
 }) {
   const [theme, setThemeState] = useState<ThemeMode>("system");
   const [fontSize, setFontSize] = useState(18);
-  const [favorites, setFavorites] = useState<string[]>([]);
   const [systemDark, setSystemDark] = useState(false);
   const [fontsLoaded] = useFonts({ PatrickHand_400Regular, });
 
@@ -57,11 +51,9 @@ export function AppProvider({
       const [
         savedTheme,
         savedFontSize,
-        savedFavorites,
       ] = await Promise.all([
         AsyncStorage.getItem(STORAGE_KEYS.theme),
         AsyncStorage.getItem(STORAGE_KEYS.fontSize),
-        AsyncStorage.getItem(STORAGE_KEYS.favorites),
       ]);
 
       if (
@@ -80,12 +72,6 @@ export function AppProvider({
         }
       }
 
-      if (savedFavorites) {
-        const parsed = JSON.parse(savedFavorites);
-        if (Array.isArray(parsed)) {
-          setFavorites(parsed);
-        }
-      }
     } catch (error) {
       console.log(
         "Erreur chargement paramètres:",
@@ -132,27 +118,6 @@ export function AppProvider({
     changeFontSize(fontSize);
   }
 
-  async function toggleFavorite(id: string,) {
-    const key = id;
-
-    const exists = favorites.includes(key);
-    const next = exists
-      ? favorites.filter((item) => item !== key)
-      : [...favorites, key];
-
-    setFavorites(next);
-
-    await AsyncStorage.setItem(
-      STORAGE_KEYS.favorites,
-      JSON.stringify(next)
-    );
-  }
-
-  function isFavorite(id: string,) {
-
-    return favorites.includes(id);
-  }
-
   const isDark =
     theme === "dark" ||
     (theme === "system" && systemDark);
@@ -163,9 +128,6 @@ export function AppProvider({
       setTheme,
       fontSize,
       handleChangeFontSize,
-      favorites,
-      toggleFavorite,
-      isFavorite,
       isDark,
       fontFamily: fontsLoaded
         ? "PatrickHand_400Regular"
@@ -174,7 +136,6 @@ export function AppProvider({
     [
       theme,
       fontSize,
-      favorites,
       isDark,
       fontsLoaded,
     ]

@@ -1,4 +1,5 @@
 import { useApp } from "@/context/app-context";
+import { useDB } from "@/context/db-context";
 import { useAppColors } from "@/hooks/use-color";
 import { Hymn } from "@/types/hymn";
 import { Ionicons } from "@expo/vector-icons";
@@ -13,7 +14,6 @@ type HymnRowProps = {
   iconColor?: string;
 };
 
-
 function renderHighlight(params: string, search: string, style: TextStyle = {}) {
   return <HighlightText text={params} highlight={search} textStyle={style} />;
 }
@@ -21,13 +21,15 @@ function renderHighlight(params: string, search: string, style: TextStyle = {}) 
 export function HymnRow({ item, search, icon = "chevron-forward", iconColor }: HymnRowProps) {
   const { isDark, fontFamily } = useApp();
   const { card, text, muted, } = useAppColors(isDark);
+  const { toggleLastRead } = useDB();
   return (
     <TouchableOpacity
       activeOpacity={0.75}
       style={[styles.card, { backgroundColor: card }]}
-      onPress={() =>
-        router.push({ pathname: "/hymn/[id]", params: { id: item.id } })
-      }
+      onPress={() => {
+        router.push({ pathname: "/hymn/[id]", params: { id: item.id } });
+        toggleLastRead(item.id);
+      }}
     >
       <View style={[styles.number, { backgroundColor: isDark ? "#ffffff3b" : "#E6EDF5" }]}>
         <Text style={[styles.numberText, { color: isDark ? "#fff" : "#cc0000" }]}>{item.number}</Text>

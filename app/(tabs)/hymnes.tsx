@@ -6,6 +6,7 @@ import {
   useState,
 } from "react";
 import {
+  ScrollView,
   SectionList,
   StyleSheet,
   Text,
@@ -20,6 +21,7 @@ import AnimatedHeader from "@/components/animate-header";
 import { HymnRow } from "@/components/hymn-row";
 import SearchBar from "@/components/search-bar";
 import { useApp } from "@/context/app-context";
+import { useDB } from "@/context/db-context";
 import { useAppColors } from "@/hooks/use-color";
 import { Hymn } from "@/types/hymn";
 import { searchHymn } from "@/utils/hymn.util";
@@ -50,38 +52,61 @@ function groupByYear(list: Hymn[]): HymnSection[] {
     }));
 }
 
+function getAllYear(hymns: Hymn[]): string[] {
+  return [...new Set(hymns.map((hymn) => hymn.year).filter(h => h !== "JM"))];
+}
+
 export default function HymnesScreen() {
-  const { isDark, isFavorite } = useApp();
+  const { isDark } = useApp();
+  const { isFavorite, favorites } = useDB();
   const [search, setSearch] = useState("");
+  const [selectedYear, setSelectedYear] = useState<string | null>("all");
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showYear, setShowYear] = useState(false);
+  const [maxHeight, setMaxHeight] = useState(150);
+
   const insets = useSafeAreaInsets();
   const listRef = useRef<any>(null);
   const { bg, text, muted, } = useAppColors(isDark);
   const isSearching = !!search.trim();
+
+  const favoriteIds = useMemo(
+    () => new Set(favorites.map((f) => f.id)),
+    [favorites]
+  );
 
   const flatResults = useMemo(() => {
     if (!isSearching) return [];
     return searchHymn(search.trim().toLowerCase());
   }, [search, isSearching]);
 
+  const yearFilteredData = useMemo(() => {
+    if (!selectedYear) return data;
+    if (selectedYear === "all") return data;
+    return data.filter((hymn) => hymn.year === selectedYear);
+  }, [selectedYear]);
+
   const sections = useMemo(() => {
     if (isSearching) return [];
-    return groupByYear(data);
-  }, [isSearching]);
+    return groupByYear(yearFilteredData);
+  }, [isSearching, yearFilteredData]);
 
-  const totalCount = isSearching ? flatResults.length : data.length;
+  const totalCount = isSearching ? flatResults.length : yearFilteredData.length;
 
-  const renderItem = ({ item }: { item: Hymn }) => {
-    const isfav = isFavorite(item.id);
-    return (
-      <HymnRow
-        item={item}
-        search={search}
-        icon={isfav ? "heart" : undefined}
-        iconColor={isfav ? "#cc0000" : ""}
-      />
-    )
-  };
+  const renderItem = useCallback(
+    ({ item }: { item: Hymn }) => {
+      const isfav = favoriteIds.has(item.id);
+      return (
+        <HymnRow
+          item={item}
+          search={search}
+          icon={isfav ? "heart" : undefined}
+          iconColor={isfav ? "#cc0000" : ""}
+        />
+      );
+    },
+    [search, favoriteIds]
+  );
 
   const keyExtractor = useCallback(
     (item: Hymn) => `${item.id}_${item.year}`,
@@ -105,13 +130,17 @@ export default function HymnesScreen() {
     }
   };
 
+  const handleSelectYear = (year: string) => {
+    setSelectedYear((current) => (current === year ? null : year));
+    scrollToTop();
+  };
+
   return (
     <AnimatedHeader
       insets={insets}
-      maxHeight={150}
+      maxHeight={maxHeight}
       minHeight={50}
       backgroundColor={bg}
-      barColor="#cc0000"
       title="Fihirana Jesosy Mamonjy"
       rightButtonIcon="search"
       rightButtonPress={scrollToTop}
@@ -148,10 +177,57 @@ export default function HymnesScreen() {
               <Ionicons name="musical-notes" size={23} color="#ffffff" />
             </View>
           </View>
-
-          <View style={styles.search}>
-            <SearchBar value={search} onChangeText={setSearch} dark={isDark} />
+          <View style={styles.searchContainer}>
+            <View style={styles.search}>
+              <SearchBar value={search} onChangeText={setSearch} dark={isDark} />
+            </View>
+            <TouchableOpacity activeOpacity={0.6} onPress={() => { setMaxHeight(showYear ? 150 : 220); setShowYear(!showYear) }}>
+              <Ionicons name={showYear ? "close" : "filter-sharp"} size={28} color="#fff" />
+              <Text style={[styles.filterText, { color: "#fff" }]}>{selectedYear === "all" ? "Tous" : selectedYear}</Text>
+            </TouchableOpacity>
           </View>
+          {showYear && <ScrollView
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            style={styles.yearScroll}
+            contentContainerStyle={styles.yearScrollContent}
+          >
+            <TouchableOpacity
+              activeOpacity={0.75}
+              onPress={() => handleSelectYear("all")}
+              style={[styles.year, selectedYear === "all" && styles.yearActive]}
+            >
+              <Text
+                style={[
+                  styles.yearText,
+                  { color: selectedYear === "all" ? "#cc0000" : "#ffffff" },
+                ]}
+              >
+                Tous
+              </Text>
+            </TouchableOpacity>
+            {getAllYear(data).map((year) => {
+              const active = selectedYear === year;
+
+              return (
+                <TouchableOpacity
+                  key={year}
+                  activeOpacity={0.75}
+                  onPress={() => handleSelectYear(year)}
+                  style={[styles.year, active && styles.yearActive]}
+                >
+                  <Text
+                    style={[
+                      styles.yearText,
+                      { color: active ? "#cc0000" : "#ffffff" },
+                    ]}
+                  >
+                    {year}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>}
         </View>
       }
       renderScrollable={({ onScroll, scrollEventThrottle, contentContainerStyle }) => {
@@ -234,7 +310,14 @@ const styles = StyleSheet.create({
   title: { fontSize: 28, fontWeight: "800" },
   subtitle: { marginTop: 3, fontSize: 13 },
   headerIcon: { width: 48, height: 48, borderRadius: 15, backgroundColor: "#e6edf59f", alignItems: "center", justifyContent: "center", },
-  search: { paddingHorizontal: 0, paddingTop: 15, },
+  searchContainer: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 12, marginTop: 20, },
+  search: { paddingHorizontal: 0, flex: 1, },
+  filterText: { fontSize: 11, fontWeight: "700", textAlign: "center" },
+  yearScroll: { marginTop: 14 },
+  yearScrollContent: { flexDirection: "row", alignItems: "center", gap: 10, paddingRight: 10 },
+  year: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: "#ffffff26", },
+  yearActive: { backgroundColor: "#ffffff", },
+  yearText: { fontSize: 14, fontWeight: "700" },
   sectionHeader: { paddingHorizontal: 10, paddingVertical: 8 },
   sectionHeaderText: { fontSize: 13, fontWeight: "800", letterSpacing: 1 },
   empty: { alignItems: "center", paddingTop: 80 },

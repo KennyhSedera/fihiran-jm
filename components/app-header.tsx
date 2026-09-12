@@ -21,7 +21,7 @@ export default function AppHeader({
   headerContent,
   children,
   draggableButton,
-  height = 100
+  height = 120
 }: Props) {
   const { isDark } = useApp();
   const { bg } = useAppColors(isDark);
@@ -29,9 +29,10 @@ export default function AppHeader({
   return (
     <View style={[styles.container, { backgroundColor: bg }]} >
       <LinearGradient
-        colors={["#cc0000", isDark ? "#420000" : "#ff7171"] as const}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }} style={[styles.header, { height },]}>
+        colors={["#cc0000", isDark ? "#6e0000" : "#ff7171"] as const}
+        start={{ x: 0.2, y: 0 }}
+        end={{ x: 0.8, y: 1 }}
+        style={[styles.header, { height },]}>
         {headerContent}
       </LinearGradient>
 
@@ -57,10 +58,12 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 20,
     paddingTop: 30,
-    paddingBottom: 15,
+    paddingBottom: 25,
     marginBottom: 5,
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
+    flexDirection: "row",
+    alignItems: "flex-end",
   },
 
   content: {
