@@ -22,7 +22,7 @@ import { useApp } from "@/context/app-context";
 import { useDB } from "@/context/db-context";
 import { useAppColors } from "@/hooks/use-color";
 import { Hymn } from "@/types/hymn";
-import { formatContent } from "@/utils/hymn.util";
+import { parseHymnContent } from "@/utils/hymn.util";
 
 export default function HymnScreen() {
   const router = useRouter();
@@ -71,8 +71,7 @@ export default function HymnScreen() {
   }
 
   const { bg, card, text, muted, } = useAppColors(isDark);
-
-  const content = formatContent(hymn.content);
+  const blocks = useMemo(() => parseHymnContent(hymn.content), [hymn.content]);
 
   return (
     <PanGestureHandler
@@ -101,12 +100,42 @@ export default function HymnScreen() {
           fontFamily={fontFamily}
           draggableButton={{ icon: "cog", onPress: () => router.push({ pathname: "/settings" }) }}
         >
-
           <View style={styles.reader}>
-            <Text style={[styles.content, { color: text, fontSize, lineHeight: fontSize * 1.3, fontFamily, },]} >
-              {content}
-            </Text>
+            {blocks.map((block, idx) => {
+              return (
+                <Text
+                  key={idx}
+                  style={[
+                    styles.content,
+                    { color: text, fontSize, lineHeight: fontSize * 1.3, fontFamily, marginBottom: fontSize * 1.2 },
+                  ]}
+                >
+                  {block.label && (
+                    <Text
+                      style={[
+                        styles.content,
+                        { color: "#cc0000", fontSize: fontSize - 2, lineHeight: fontSize * 1.3, fontFamily },
+                      ]}
+                    >
+                      {block.label && block.label + "\n"}
+                    </Text>
+                  )}
 
+                  {block.kind === "verse" && (
+                    <Text
+                      style={[
+                        styles.content,
+                        { color: "#cc0000", fontSize, lineHeight: fontSize * 1.3, fontFamily },
+                      ]}
+                    >
+                      {`${block.number}. `}
+                    </Text>
+                  )}
+
+                  {block.text}
+                </Text>
+              );
+            })}
           </View>
         </AnimatedHymnHeader>
       </View>

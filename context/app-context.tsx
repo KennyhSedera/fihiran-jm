@@ -1,18 +1,27 @@
-import {
-  PatrickHand_400Regular,
-  useFonts,
-} from "@expo-google-fonts/patrick-hand";
+import { Caveat_400Regular, } from "@expo-google-fonts/caveat";
+import { ComicNeue_400Regular, } from "@expo-google-fonts/comic-neue";
+import { Kalam_400Regular, } from "@expo-google-fonts/kalam";
+import { PatrickHand_400Regular, useFonts, } from "@expo-google-fonts/patrick-hand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { createContext, ReactNode, useContext, useEffect, useMemo, useState, } from "react";
 
 export type ThemeMode = "light" | "dark" | "system";
+
+export type FontChoice = "patrickHand" | "caveat" | "kalam" | "comicNeue";
+
+export const FONT_FAMILY_MAP: Record<FontChoice, string> = {
+  patrickHand: "PatrickHand_400Regular",
+  caveat: "Caveat_400Regular",
+  kalam: "Kalam_400Regular",
+  comicNeue: "ComicNeue_400Regular",
+};
+
+export const FONT_LABELS: Record<FontChoice, string> = {
+  patrickHand: "Patrick Hand",
+  caveat: "Caveat",
+  kalam: "Kalam",
+  comicNeue: "Comic Neue",
+};
 
 interface AppContextType {
   theme: ThemeMode;
@@ -20,6 +29,9 @@ interface AppContextType {
 
   fontSize: number;
   handleChangeFontSize: (value: number) => void;
+
+  fontChoice: FontChoice;
+  setFontChoice: (choice: FontChoice) => void;
 
   isDark: boolean;
   fontFamily?: string;
@@ -30,7 +42,19 @@ const AppContext = createContext<AppContextType | null>(null);
 const STORAGE_KEYS = {
   theme: "@fihirana/theme",
   fontSize: "@fihirana/fontSize",
+  fontChoice: "@fihirana/fontChoice",
 };
+
+const DEFAULT_FONT_CHOICE: FontChoice = "patrickHand";
+
+function isFontChoice(value: string | null): value is FontChoice {
+  return (
+    value === "patrickHand" ||
+    value === "caveat" ||
+    value === "kalam" ||
+    value === "comicNeue"
+  );
+}
 
 export function AppProvider({
   children,
@@ -39,8 +63,15 @@ export function AppProvider({
 }) {
   const [theme, setThemeState] = useState<ThemeMode>("system");
   const [fontSize, setFontSize] = useState(18);
+  const [fontChoice, setFontChoiceState] = useState<FontChoice>(DEFAULT_FONT_CHOICE);
   const [systemDark, setSystemDark] = useState(false);
-  const [fontsLoaded] = useFonts({ PatrickHand_400Regular, });
+
+  const [fontsLoaded] = useFonts({
+    PatrickHand_400Regular,
+    Caveat_400Regular,
+    Kalam_400Regular,
+    ComicNeue_400Regular,
+  });
 
   useEffect(() => {
     loadSettings();
@@ -51,9 +82,11 @@ export function AppProvider({
       const [
         savedTheme,
         savedFontSize,
+        savedFontChoice,
       ] = await Promise.all([
         AsyncStorage.getItem(STORAGE_KEYS.theme),
         AsyncStorage.getItem(STORAGE_KEYS.fontSize),
+        AsyncStorage.getItem(STORAGE_KEYS.fontChoice),
       ]);
 
       if (
@@ -70,6 +103,10 @@ export function AppProvider({
         if (!Number.isNaN(parsed)) {
           setFontSize(parsed);
         }
+      }
+
+      if (isFontChoice(savedFontChoice)) {
+        setFontChoiceState(savedFontChoice);
       }
 
     } catch (error) {
@@ -118,6 +155,15 @@ export function AppProvider({
     changeFontSize(fontSize);
   }
 
+  async function setFontChoice(choice: FontChoice) {
+    setFontChoiceState(choice);
+
+    await AsyncStorage.setItem(
+      STORAGE_KEYS.fontChoice,
+      choice
+    );
+  }
+
   const isDark =
     theme === "dark" ||
     (theme === "system" && systemDark);
@@ -128,14 +174,17 @@ export function AppProvider({
       setTheme,
       fontSize,
       handleChangeFontSize,
+      fontChoice,
+      setFontChoice,
       isDark,
       fontFamily: fontsLoaded
-        ? "PatrickHand_400Regular"
+        ? FONT_FAMILY_MAP[fontChoice]
         : undefined,
     }),
     [
       theme,
       fontSize,
+      fontChoice,
       isDark,
       fontsLoaded,
     ]

@@ -1,14 +1,19 @@
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import {
+  Linking,
+  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import Animated from "react-native-reanimated";
 
 import AnimatedHeader from "@/components/animate-header";
 import {
+  FONT_FAMILY_MAP,
+  FONT_LABELS,
+  FontChoice,
   ThemeMode,
   useApp,
 } from "@/context/app-context";
@@ -17,9 +22,35 @@ import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function SettingsScreen() {
-  const { theme, setTheme, fontSize, handleChangeFontSize, isDark, fontFamily } = useApp();
+  const { theme, setTheme, fontSize, handleChangeFontSize, isDark, fontFamily, setFontChoice } = useApp();
   const insets = useSafeAreaInsets();
   const { bg, card, text, muted, } = useAppColors(isDark);
+
+  const fontOptions: FontChoice[] = ["patrickHand", "caveat", "kalam", "comicNeue"];
+
+  const contacts = [
+    {
+      icon: "logo-whatsapp",
+      title: "Tel",
+      value: "+261 34 92 870 65",
+      color: "green",
+      onPress: () => Linking.openURL("https://wa.me/261349287065"),
+    },
+    {
+      icon: "logo-facebook",
+      title: "Facebook",
+      value: "Kennyh Sedera",
+      color: "#3374ff",
+      onPress: () => Linking.openURL("https://facebook.com/profile.php?id=100006716355270"),
+    },
+    {
+      icon: "mail-outline",
+      title: "Email",
+      color: "",
+      value: "kennyhsedera@gmail.com",
+      onPress: () => Linking.openURL("mailto:kennyhsedera@gmail.com"),
+    },
+  ];
 
   const numbers = Array.from(
     { length: (30 - 14) / 2 + 1 },
@@ -132,6 +163,32 @@ export default function SettingsScreen() {
             </Text>
           </View>
 
+          <View style={[styles.card, { backgroundColor: card, marginTop: 10 }]}>
+            <View style={styles.fontHeader}>
+              <Text style={[styles.optionText, { color: text, fontFamily }]}>
+                Police du texte
+              </Text>
+            </View>
+            <View style={[styles.fontControls, { justifyContent: "space-between", }]}>
+              {
+                fontOptions.map((choice) => {
+                  const active = FONT_FAMILY_MAP[choice] === fontFamily;
+                  return (
+                    <TouchableOpacity
+                      key={choice}
+                      style={[styles.optionFontFamily, { backgroundColor: active ? "#cc0000" : isDark ? "#f5f6f81a" : "#00000011", },]}
+                      onPress={() => setFontChoice(choice)}
+                    >
+                      <Text style={{ color: active ? "#FFFFFF" : text, fontFamily: FONT_FAMILY_MAP[choice], }}>
+                        {FONT_LABELS[choice]}
+                      </Text>
+                    </TouchableOpacity>
+                  )
+                })
+              }
+
+            </View>
+          </View>
           <Text style={[styles.sectionTitle, { color: muted, marginTop: 25 }]} >
             APPLICATION
           </Text>
@@ -149,6 +206,59 @@ export default function SettingsScreen() {
                 n'est nécessaire pour lire les contenus.
               </Text>
             </View>
+          </View>
+
+          <Text style={[styles.sectionTitle, { marginTop: 25, color: text }]}>
+            CONTACT
+          </Text>
+
+          <View style={[styles.infoCard, { backgroundColor: card, justifyContent: "space-between", }]}>
+            {contacts.map((contact, index) => (
+              <Pressable
+                key={index}
+                style={styles.contact}
+                onPress={contact.onPress}
+              >
+                <Ionicons name={contact.icon as any} size={27} color={contact.color || "#cc0000"} />
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.infoTitle, { color: text }]}>
+                    {contact.title}
+                  </Text>
+                </View>
+                <Text numberOfLines={1} style={[styles.infoText, { color: muted }]}>
+                  {contact.value}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+
+          <Text style={[styles.sectionTitle, { marginTop: 25, color: text }]}>
+            INFO
+          </Text>
+
+          <View style={[styles.infoCard, { backgroundColor: card, flexDirection: "column", gap: 10, }]}>
+            <View style={styles.infoRow}>
+              <Text style={[styles.infoLabel, { color: muted }]}>Version</Text>
+              <Text style={[styles.infoValue, { color: text }]}>1.0.0</Text>
+            </View>
+
+            <View style={[styles.infoDivider, { backgroundColor: muted }]} />
+
+            <Text style={[styles.infoApp, { color: text }]}>
+              Fihirana Jesosy Mamonjy
+            </Text>
+
+            <Text style={[styles.infoAuthor, { color: muted }]}>
+              Créé par Kennyh Sedera
+            </Text>
+
+            <Text style={[styles.infoCopyright, { color: muted }]}>
+              © 2026
+            </Text>
+
+            <Text style={[styles.infoSlogan, { color: "#cc0000" }]}>
+              "Vonnahitra ho an'Andriamanitra irery ihany"
+            </Text>
           </View>
         </Animated.ScrollView>
       )}
@@ -171,6 +281,7 @@ const styles = StyleSheet.create({
   iconBox: { width: 42, height: 42, borderRadius: 13, backgroundColor: "#E5EBF1", alignItems: "center", justifyContent: "center" },
   activeIconBox: { backgroundColor: "#cc0000" },
   optionText: { fontSize: 16, fontWeight: "600" },
+  optionFontFamily: { height: 30, paddingHorizontal: 15, borderRadius: 20, justifyContent: "center", alignItems: "center" },
   radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: "#A4ADB7", alignItems: "center", justifyContent: "center" },
   radioActive: { borderColor: "#cc0000" },
   radioDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: "#cc0000" },
@@ -185,4 +296,13 @@ const styles = StyleSheet.create({
   infoTitle: { fontSize: 16, fontWeight: "700", marginBottom: 5 },
   infoText: { fontSize: 13, lineHeight: 20 },
   version: { textAlign: "center", marginTop: 35, lineHeight: 20 },
+  infoRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", alignSelf: "stretch", },
+  infoLabel: { fontSize: 15, fontWeight: "600", },
+  infoValue: { fontSize: 15, fontWeight: "700", },
+  infoDivider: { height: 1, opacity: 0.15, },
+  infoApp: { fontSize: 15, fontWeight: "700", textAlign: "center", marginTop: 14, textTransform: "uppercase" },
+  infoAuthor: { fontSize: 13, textAlign: "center", },
+  infoCopyright: { fontSize: 12, textAlign: "center", },
+  infoSlogan: { fontSize: 13, textAlign: "center", marginTop: 4, fontStyle: "italic", },
+  contact: { alignItems: "center", justifyContent: "center", width: "30%" },
 });

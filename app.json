@@ -4,7 +4,7 @@
     "slug": "fihiran-jm",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/images.jpg",
+    "icon": "./assets/images/icon.png",
     "scheme": "fihiranjm",
     "userInterfaceStyle": "automatic",
     "ios": {
@@ -12,10 +12,10 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/images.jpg",
-        "backgroundImage": "./assets/images/images.jpg",
-        "monochromeImage": "./assets/images/images.jpg"
+        "backgroundColor": "#E6F4FE00",
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundImage": "./assets/images/icon.png",
+        "monochromeImage": "./assets/images/icon.png"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.kennyh2.x0.fihiranjm"
@@ -29,12 +29,12 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/images.jpg",
+          "image": "./assets/images/hymn.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#cc0000",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#6e0000"
           }
         }
       ],

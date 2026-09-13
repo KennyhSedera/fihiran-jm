@@ -183,34 +183,6 @@ export default function HomeScreen() {
 
         {favorites.slice(0, 5).map((hymn) => (<HymnRow key={hymn.id} item={hymn} icon="heart" iconColor="#cc0000" />))}
 
-        <Text style={[styles.sectionTitle, { marginTop: 30, color: text }]}>
-          Info
-        </Text>
-
-        <View style={[styles.infoCard, { backgroundColor: card }]}>
-          <View style={styles.infoRow}>
-            <Text style={[styles.infoLabel, { color: muted }]}>Version</Text>
-            <Text style={[styles.infoValue, { color: text }]}>1.0.0</Text>
-          </View>
-
-          <View style={[styles.infoDivider, { backgroundColor: muted }]} />
-
-          <Text style={[styles.infoApp, { color: text }]}>
-            Fihirana Jesosy Mamonjy
-          </Text>
-
-          <Text style={[styles.infoAuthor, { color: muted }]}>
-            Créé par Kennyh Sedera
-          </Text>
-
-          <Text style={[styles.infoCopyright, { color: muted }]}>
-            © 2026
-          </Text>
-
-          <Text style={[styles.infoSlogan, { color: "#cc0000" }]}>
-            "Vonnahitra ho an'Andriamanitra irery ihany"
-          </Text>
-        </View>
       </ScrollView>
     </ParallaxScrollView>
   );
@@ -247,13 +219,4 @@ const styles = StyleSheet.create({
   hymnTitle: { fontSize: 16, fontWeight: "700", },
   card: { minHeight: 70, padding: 12, borderRadius: 17, marginBottom: 9, flexDirection: "column", alignItems: "center", },
   hymnCategory: { fontSize: 12, marginTop: 3, textTransform: "capitalize", },
-  infoCard: { padding: 4, borderRadius: 17, },
-  infoRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", alignSelf: "stretch", padding: 16, },
-  infoLabel: { fontSize: 15, fontWeight: "600", },
-  infoValue: { fontSize: 15, fontWeight: "700", },
-  infoDivider: { height: 1, opacity: 0.15, marginHorizontal: 16, },
-  infoApp: { fontSize: 15, fontWeight: "700", textAlign: "center", marginTop: 14, textTransform: "uppercase" },
-  infoAuthor: { fontSize: 13, textAlign: "center", marginTop: 4, },
-  infoCopyright: { fontSize: 12, textAlign: "center", marginTop: 4, marginBottom: 14, },
-  infoSlogan: { fontSize: 13, textAlign: "center", marginTop: 4, marginBottom: 14, fontStyle: "italic", },
 });

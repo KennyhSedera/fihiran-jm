@@ -122,7 +122,7 @@ export default function AnimatedHymnHeader({
   return (
     <View style={{ flex: 1 }}>
       <AnimatedLinearGradient
-        colors={[barColor, isDark ? "#6e0000" : "#ff7171"] as const}
+        colors={[barColor, isDark ? "#6e0000" : "#ff5f43"] as const}
         start={{ x: 0.2, y: 0 }}
         end={{ x: 0.8, y: 1 }}
         style={[styles.header, headerStyle]}
@@ -137,7 +137,7 @@ export default function AnimatedHymnHeader({
               numberOfLines={1}
               style={[styles.barTitle, compactTitleStyle]}
             >
-              {number}  {title}
+              {number}.  {title}
             </Animated.Text>
           </View>
 

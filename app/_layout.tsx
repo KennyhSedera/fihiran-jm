@@ -22,19 +22,13 @@ function RootNavigator() {
         backgroundColor="transparent"
       />
       <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: {
-            backgroundColor: isDark ? "#101820" : "#F5F6F8",
-          },
-        }}
+        screenOptions={{ headerShown: false, }}
       />
     </DBProvider>
   );
 }
 
 function CustomSplash() {
-  const { isDark } = useApp();
   const logoUrl = require("@/assets/images/hymnb.png");
 
   return (
@@ -69,7 +63,7 @@ export default function RootLayout() {
   useEffect(() => {
     async function prepare() {
       try {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+
       } finally {
         setAppReady(true);
       }
@@ -83,7 +77,7 @@ export default function RootLayout() {
     SplashScreen.hideAsync();
     const timeout = setTimeout(() => {
       setShowCustomSplash(false);
-    }, 1500);
+    }, 3000);
     return () => clearTimeout(timeout);
   }, [appReady]);
 

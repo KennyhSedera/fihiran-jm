@@ -67,6 +67,6 @@ const styles = StyleSheet.create({
   number: { width: 48, height: 48, borderRadius: 15, backgroundColor: "#E6EDF5", alignItems: "center", justifyContent: "center", },
   numberText: { color: "#cc0000", fontWeight: "800", fontSize: 15 },
   info: { flex: 1, marginHorizontal: 13 },
-  hymnTitle: { fontSize: 16, fontWeight: "700" },
+  hymnTitle: { fontSize: 16, },
   category: { marginTop: 4, fontSize: 12 },
 });

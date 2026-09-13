@@ -1,5 +1,4 @@
 import hymnes from '@/assets/json/fihirana_jm.json';
-import { HymnVerse } from '@/types/hymn';
 
 export function wrapTextAroundWord(
   text: string,
@@ -137,32 +136,57 @@ export function formatContentString(content: string) {
     .trim();
 }
 
-export function parseHymnContent(content: string): HymnVerse[] {
-  const formatted = formatContent(content);
+export type HymnBlockKind = "verse" | "refrain";
 
-  const blocks = formatted
+export interface HymnBlock {
+  kind: HymnBlockKind;
+  number: number | null;
+  label: string | null;
+  text: string;
+  lines: string[];
+}
+
+const VERSE_PREFIX = /^(\d+)\s*-\s*/;
+
+const REFRAIN_LABELS = ["isan'andininy", "fiverenana", "refrain"];
+
+export function parseHymnContent(raw: string): HymnBlock[] {
+  const normalized = formatContent(raw);
+
+  const blocks = normalized
     .split(/\n{2,}/)
-    .map((block) => block.trim())
+    .map((b) => b.trim())
     .filter(Boolean);
 
-  return blocks.map((block) => {
-    const match = block.match(/^(\d+)\s*-\s*/);
+  return blocks.map((block): HymnBlock => {
+    const verseMatch = block.match(VERSE_PREFIX);
 
-    if (match) {
-      const number = parseInt(match[1], 10);
-      const text = block.replace(/^(\d+)\s*-\s*/, "").trim();
+    if (verseMatch) {
+      const number = parseInt(verseMatch[1], 10);
+      const text = block.slice(verseMatch[0].length).trim();
 
       return {
+        kind: "verse",
         number,
+        label: null,
         text,
-        isRefrain: false,
+        lines: text.split("\n").map((l) => l.trim()).filter(Boolean),
       };
     }
 
+    const lines = block.split("\n").map((l) => l.trim()).filter(Boolean);
+    const firstLine = lines[0] ?? "";
+    const isKnownLabel = REFRAIN_LABELS.includes(firstLine.toLowerCase());
+
+    const label = isKnownLabel ? firstLine : null;
+    const contentLines = isKnownLabel ? lines.slice(1) : lines;
+
     return {
+      kind: "refrain",
       number: null,
-      text: block,
-      isRefrain: true,
+      label,
+      text: contentLines.join("\n"),
+      lines: contentLines,
     };
   });
 }

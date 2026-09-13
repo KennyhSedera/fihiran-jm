@@ -24,14 +24,14 @@ type TabBarProps = NonNullable<React.ComponentProps<typeof Tabs>["tabBar"]> exte
 
 const ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   index: "home",
-  hymnes: "book",
+  hymnes: "musical-notes",
   favorites: "heart",
   settings: "settings",
 };
 
 const LABELS: Record<string, string> = {
   index: "Accueil",
-  hymnes: "Fihirana",
+  hymnes: "Tonokira",
   favorites: "Favoris",
   settings: "Paramètres",
 };
@@ -52,7 +52,7 @@ export default function CustomTabBar({
       ]}
     >
       <LinearGradient
-        colors={["#cc0000", isDark ? "#6e0000" : "#ff7171"] as const}
+        colors={["#cc0000", isDark ? "#6e0000" : "#ff5f43"] as const}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={[styles.bar, { backgroundColor: card, borderColor: border }]}>

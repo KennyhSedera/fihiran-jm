@@ -29,7 +29,7 @@ export default function AppHeader({
   return (
     <View style={[styles.container, { backgroundColor: bg }]} >
       <LinearGradient
-        colors={["#cc0000", isDark ? "#6e0000" : "#ff7171"] as const}
+        colors={["#cc0000", isDark ? "#6e0000" : "#ff5f43"] as const}
         start={{ x: 0.2, y: 0 }}
         end={{ x: 0.8, y: 1 }}
         style={[styles.header, { height },]}>

@@ -182,7 +182,7 @@ export default function HymnesScreen() {
               <SearchBar value={search} onChangeText={setSearch} dark={isDark} />
             </View>
             <TouchableOpacity activeOpacity={0.6} onPress={() => { setMaxHeight(showYear ? 150 : 220); setShowYear(!showYear) }}>
-              <Ionicons name={showYear ? "close" : "filter-sharp"} size={28} color="#fff" />
+              <Ionicons name={showYear ? "close" : "filter-sharp"} size={24} color="#fff" />
               <Text style={[styles.filterText, { color: "#fff" }]}>{selectedYear === "all" ? "Tous" : selectedYear}</Text>
             </TouchableOpacity>
           </View>
