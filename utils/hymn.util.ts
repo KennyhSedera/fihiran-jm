@@ -1,4 +1,5 @@
 import hymnes from '@/assets/json/fihirana_jm.json';
+import { Hymn } from '@/types/hymn';
 
 export function wrapTextAroundWord(
   text: string,
@@ -96,15 +97,16 @@ export function capitalizeWords(str: string): string {
     .join(' ');
 }
 
-export function searchHymn(search: string) {
+export function searchHymn(search: string, data: Hymn[] = hymnes): Hymn[] {
   const query = search.trim().toLowerCase();
 
-  const result = hymnes.filter((hymn) => {
+  const result = data.filter((hymn) => {
     const content = formatContent(hymn.content);
     return (
       String(hymn.number).includes(query) ||
       hymn.title.toLowerCase().includes(query) ||
-      content.toLowerCase().includes(query)
+      content.toLowerCase().includes(query) ||
+      hymn.year.toLowerCase().includes(query)
     );
   });
 
@@ -148,7 +150,9 @@ export interface HymnBlock {
 
 const VERSE_PREFIX = /^(\d+)\s*-\s*/;
 
-const REFRAIN_LABELS = ["isan'andininy", "fiverenana", "refrain"];
+const refrainNumber = Array.from({ length: 5 }, (_, i) => i + 1);
+
+const REFRAIN_LABELS = ["isan'andininy", "fiverenana", "refrain", "famaranana", ...refrainNumber.map((n) => `isan'andininy ${n}`)];
 
 export function parseHymnContent(raw: string): HymnBlock[] {
   const normalized = formatContent(raw);

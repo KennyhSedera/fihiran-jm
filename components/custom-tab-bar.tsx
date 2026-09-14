@@ -24,7 +24,7 @@ type TabBarProps = NonNullable<React.ComponentProps<typeof Tabs>["tabBar"]> exte
 
 const ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   index: "home",
-  hymnes: "musical-notes",
+  hymnes: "musical-note",
   favorites: "heart",
   settings: "settings",
 };

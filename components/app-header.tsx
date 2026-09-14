@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   header: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     paddingTop: 30,
     paddingBottom: 25,
     marginBottom: 5,

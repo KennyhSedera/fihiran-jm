@@ -18,10 +18,10 @@ const data = hymnes as Hymn[];
 
 export default function FavoritesScreen() {
   const { isDark, } = useApp();
-  const { favorites } = useDB();
+  const { favorites, toggleFavorite } = useDB();
   const { text, muted, } = useAppColors(isDark);
 
-  const favoriteHymns = favorites;
+  const favoriteHymns = favorites.sort((a, b) => Number(a.id) - Number(b.id));
 
   return (
     <AppHeader
@@ -51,7 +51,13 @@ export default function FavoritesScreen() {
           paddingTop: 5,
           paddingBottom: 100,
         }}
-        renderItem={({ item }) => (<HymnRow item={item} icon="heart" iconColor="#ff0000" />)}
+        renderItem={({ item }) => (
+          <HymnRow
+            item={item}
+            icon="heart"
+            iconColor="#ff0000"
+            onPress={() => toggleFavorite(item.id)}
+          />)}
         ListEmptyComponent={
           <View style={styles.empty}>
             <Ionicons name="heart-outline" size={60} color="#A2ACB7" />
@@ -72,7 +78,7 @@ export default function FavoritesScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, },
-  headerContainer: { flex: 1, flexDirection: "column", },
+  headerContainer: { flex: 1, flexDirection: "column", paddingHorizontal: 8 },
   header: { paddingTop: 5, flexDirection: "row", justifyContent: "space-between", alignItems: "center", },
   headerIcon: { width: 48, height: 48, borderRadius: 15, backgroundColor: "#e6edf59f", alignItems: "center", justifyContent: "center", },
   title: { fontSize: 28, fontWeight: "800", },

@@ -1,5 +1,6 @@
-import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { Entypo, FontAwesome, FontAwesome5, Ionicons } from "@expo/vector-icons";
 import {
+  Image,
   Linking,
   Pressable,
   StyleSheet,
@@ -96,8 +97,12 @@ export default function SettingsScreen() {
           onScroll={onScroll}
           scrollEventThrottle={scrollEventThrottle}
           contentContainerStyle={[styles.content, contentContainerStyle]}
+          showsVerticalScrollIndicator={false}
         >
-          <Text style={[styles.sectionTitle, { color: muted }]}>THÈME</Text>
+          <View style={[styles.sectionTitleContainer, { marginTop: 0 }]}>
+            <Ionicons name="color-palette" size={20} color={"#cc0000"} />
+            <Text style={[styles.sectionTitle, { color: muted }]}>THÈME</Text>
+          </View>
 
           <View style={[styles.card, { backgroundColor: card }]}>
             {themes.map((item) => {
@@ -129,9 +134,10 @@ export default function SettingsScreen() {
             })}
           </View>
 
-          <Text style={[styles.sectionTitle, { color: muted, marginTop: 25 }]} >
-            TEXTE
-          </Text>
+          <View style={[styles.sectionTitleContainer]} >
+            <Ionicons name="text-sharp" size={20} color={"#cc0000"} />
+            <Text style={[styles.sectionTitle, { color: muted }]}>TEXTE</Text>
+          </View>
 
           <View style={[styles.card, { backgroundColor: card }]}>
             <View style={styles.fontHeader}>
@@ -139,7 +145,7 @@ export default function SettingsScreen() {
                 Taille du texte
               </Text>
 
-              <Text style={[styles.fontValue, { color: muted }]}>
+              <Text style={[styles.fontValue, { color: muted, fontFamily }]}>
                 {fontSize}
               </Text>
             </View>
@@ -189,11 +195,13 @@ export default function SettingsScreen() {
 
             </View>
           </View>
-          <Text style={[styles.sectionTitle, { color: muted, marginTop: 25 }]} >
-            APPLICATION
-          </Text>
 
-          <View style={[styles.infoCard, { backgroundColor: card }]}>
+          <View style={[styles.sectionTitleContainer]} >
+            <Ionicons name="cog-sharp" size={20} color={"#cc0000"} />
+            <Text style={[styles.sectionTitle, { color: muted }]}>APPLICATION</Text>
+          </View>
+
+          <View style={[styles.infoCard, { backgroundColor: card, }]}>
             <Ionicons name="cloud-offline-outline" size={27} color="#cc0000" />
 
             <View style={{ flex: 1 }}>
@@ -208,9 +216,38 @@ export default function SettingsScreen() {
             </View>
           </View>
 
-          <Text style={[styles.sectionTitle, { marginTop: 25, color: text }]}>
-            CONTACT
-          </Text>
+          <View style={[styles.infoCard, { backgroundColor: card, marginTop: 10, }]}>
+            <Entypo name="note" size={27} color="#b30000" />
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.infoTitle, { color: text }]}>
+                Notes musicales
+              </Text>
+
+              <Text style={[styles.infoText, { color: muted }]}>
+                Vous pouvez enregistrer vos notes musicales sur votre appareil.
+                Fonctionnalités en cours de developpement
+              </Text>
+            </View>
+          </View>
+
+          <View style={[styles.infoCard, { backgroundColor: card, marginTop: 10, }]}>
+            <FontAwesome5 name="headphones" size={27} color="#b30000" />
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.infoTitle, { color: text }]}>
+                Chants & Musiques
+              </Text>
+
+              <Text style={[styles.infoText, { color: muted }]}>
+                Les musiques sont telecharger et stockees sur votre appareil.
+                Fonctionnalités en cours de developpement
+              </Text>
+            </View>
+          </View>
+
+          <View style={[styles.sectionTitleContainer]}>
+            <Ionicons name="call" size={20} color={"#cc0000"} />
+            <Text style={[styles.sectionTitle, { color: muted }]}>CONTACT</Text>
+          </View>
 
           <View style={[styles.infoCard, { backgroundColor: card, justifyContent: "space-between", }]}>
             {contacts.map((contact, index) => (
@@ -232,30 +269,17 @@ export default function SettingsScreen() {
             ))}
           </View>
 
-          <Text style={[styles.sectionTitle, { marginTop: 25, color: text }]}>
-            INFO
-          </Text>
+          <View style={[styles.sectionTitleContainer]}>
+            <Ionicons name="information-circle" size={20} color={"#cc0000"} />
+            <Text style={[styles.sectionTitle, { color: muted }]}>A PROPOS</Text>
+          </View>
 
-          <View style={[styles.infoCard, { backgroundColor: card, flexDirection: "column", gap: 10, }]}>
-            <View style={styles.infoRow}>
-              <Text style={[styles.infoLabel, { color: muted }]}>Version</Text>
-              <Text style={[styles.infoValue, { color: text }]}>1.0.0</Text>
-            </View>
-
-            <View style={[styles.infoDivider, { backgroundColor: muted }]} />
-
-            <Text style={[styles.infoApp, { color: text }]}>
-              Fihirana Jesosy Mamonjy
-            </Text>
-
-            <Text style={[styles.infoAuthor, { color: muted }]}>
-              Créé par Kennyh Sedera
-            </Text>
-
-            <Text style={[styles.infoCopyright, { color: muted }]}>
-              © 2026
-            </Text>
-
+          <View style={[styles.infoCard, { backgroundColor: card, flexDirection: "column", gap: 10, alignItems: "center", }]}>
+            <Image source={require("@/assets/images/fihirana2.png")} style={styles.infoImage} />
+            <Text style={[styles.infoLabel, { color: muted }]}>Version <Text style={[{ color: text }]}>1.0.0</Text></Text>
+            <Text style={[styles.infoApp, { color: text }]}>  Fihirana Jesosy Mamonjy </Text>
+            <Text style={[styles.infoAuthor, { color: muted }]}> Créé par Kennyh Sedera </Text>
+            <Text style={[styles.infoCopyright, { color: muted }]}> © 2026 </Text>
             <Text style={[styles.infoSlogan, { color: "#cc0000" }]}>
               "Vonnahitra ho an'Andriamanitra irery ihany"
             </Text>
@@ -274,7 +298,8 @@ const styles = StyleSheet.create({
   subtitle: { marginTop: 3, fontSize: 13 },
   headerIcon: { width: 48, height: 48, borderRadius: 15, backgroundColor: "#e6edf59f", alignItems: "center", justifyContent: "center", },
   content: { padding: 10, paddingBottom: 50, marginTop: 20 },
-  sectionTitle: { fontSize: 12, fontWeight: "800", letterSpacing: 1, marginBottom: 10 },
+  sectionTitle: { fontSize: 12, fontWeight: "800", letterSpacing: 1 },
+  sectionTitleContainer: { flexDirection: "row", alignItems: "center", gap: 5, marginBottom: 10, marginTop: 35, },
   card: { borderRadius: 18, overflow: "hidden" },
   option: { minHeight: 67, paddingHorizontal: 15, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   optionLeft: { flexDirection: "row", alignItems: "center", gap: 12 },
@@ -286,9 +311,9 @@ const styles = StyleSheet.create({
   radioActive: { borderColor: "#cc0000" },
   radioDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: "#cc0000" },
   fontHeader: { padding: 16, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  fontValue: { fontSize: 16, fontWeight: "700" },
-  fontControls: { padding: 15, paddingTop: 0, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10 },
-  fontButton: { padding: 8, borderRadius: 20, justifyContent: "center", alignItems: "center" },
+  fontValue: { fontSize: 16, },
+  fontControls: { padding: 15, paddingTop: 0, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  fontButton: { padding: 8, paddingHorizontal: 9, borderRadius: 20, justifyContent: "center", alignItems: "center" },
   fontButtonText: { fontSize: 14, fontWeight: "800" },
   preview: { flex: 1, alignItems: "center", justifyContent: "center", overflow: "hidden" },
   previewText: { fontWeight: "500" },
@@ -298,9 +323,8 @@ const styles = StyleSheet.create({
   version: { textAlign: "center", marginTop: 35, lineHeight: 20 },
   infoRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", alignSelf: "stretch", },
   infoLabel: { fontSize: 15, fontWeight: "600", },
-  infoValue: { fontSize: 15, fontWeight: "700", },
-  infoDivider: { height: 1, opacity: 0.15, },
-  infoApp: { fontSize: 15, fontWeight: "700", textAlign: "center", marginTop: 14, textTransform: "uppercase" },
+  infoImage: { width: 52, height: 52, borderRadius: 15, objectFit: "cover" },
+  infoApp: { fontSize: 15, fontWeight: "700", textAlign: "center", marginTop: 10, textTransform: "uppercase" },
   infoAuthor: { fontSize: 13, textAlign: "center", },
   infoCopyright: { fontSize: 12, textAlign: "center", },
   infoSlogan: { fontSize: 13, textAlign: "center", marginTop: 4, fontStyle: "italic", },

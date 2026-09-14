@@ -1,6 +1,6 @@
 import { Controller, initDB } from "@/api/db.sqlite";
 import hymnes from "@/assets/json/fihirana_jm.json";
-import { DBContextType, Favorite, LastReads } from "@/types/db.type";
+import { DBContextType, Favorite, LastReads, LastSearch } from "@/types/db.type";
 import { Hymn } from "@/types/hymn";
 import { useSQLiteContext } from "expo-sqlite";
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
@@ -13,6 +13,7 @@ export function DBProvider({ children }: { children: ReactNode }) {
   const db = useSQLiteContext();
   const [favorites, setFavorites] = useState<Hymn[]>([]);
   const [lastReads, setLastReads] = useState<Hymn[]>([]);
+  const [lastSearch, setLastSearch] = useState<Hymn[]>([]);
 
   const controller = Controller(db);
 
@@ -30,6 +31,16 @@ export function DBProvider({ children }: { children: ReactNode }) {
       .filter((hymn): hymn is Hymn => hymn !== undefined);
   }
 
+  function getHymnsInLastSearch(last: LastSearch[]): Hymn[] {
+    return last
+      .map((lastSearch) =>
+        data.find(
+          (hymn) => hymn.id === lastSearch.number
+        ) ?? null
+      )
+      .filter((hymn): hymn is Hymn => hymn !== null);
+  }
+
   async function getFavorites() {
     try {
       const res = (await controller.getFavorites()) as Favorite[];
@@ -43,8 +54,18 @@ export function DBProvider({ children }: { children: ReactNode }) {
     try {
       const res = (await controller.getLastReads()) as LastReads[];
       setLastReads(getHymnsInLastReads(res));
+
     } catch (error) {
       console.error("Erreur dans getLastReads", error);
+    }
+  }
+
+  async function getLastSearch() {
+    try {
+      const res = (await controller.getLastSearch()) as LastSearch[];
+      setLastSearch(getHymnsInLastSearch(res));
+    } catch (error) {
+      console.error("Erreur dans getLastSearch", error);
     }
   }
 
@@ -134,11 +155,67 @@ export function DBProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function updateLastSearch(id: string) {
+    try {
+      await controller.updateLastSearch(id);
+    } catch (error) {
+      console.error("Erreur dans updateLastSearch", error);
+    }
+  }
+
+
+  async function addNewLastSearch(id: string) {
+    try {
+      await controller.addNewLastSearch(id);
+    } catch (error) {
+      console.error("Erreur dans addNewLastSearch", error);
+    }
+  }
+
+  async function removeLastSearch(id: string) {
+    try {
+      await controller.removeLastSearch(id);
+      await getLastSearch();
+    } catch (error) {
+      console.error("Erreur dans removeLastSearch", error);
+    }
+  }
+
+  async function toggleLastSearch(id: string) {
+    const existing = lastSearch.some((f) => f.id === id);
+    console.log({ id, existing });
+
+    try {
+      if (existing) {
+        await updateLastSearch(id);
+      } else {
+        const raw = (await controller.getLastSearch()) as LastSearch[];
+
+        if (raw.length >= 20) {
+          const oldest = raw.reduce((a, b) =>
+            a.search_at < b.search_at ? a : b
+          );
+
+          if (oldest.number !== id) {
+            await removeLastSearch(oldest.number);
+          }
+        }
+
+        await addNewLastSearch(id);
+      }
+
+      await getLastSearch();
+    } catch (error) {
+      console.error("Erreur dans toggleLastSearch", error);
+    }
+  }
+
   useEffect(() => {
     async function setup() {
       await initDB(db);
       getFavorites();
       getLastReads();
+      getLastSearch();
     }
 
     setup();
@@ -146,8 +223,10 @@ export function DBProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({
+      hymns: data,
       favorites,
       lastReads,
+      lastSearch,
 
       isFavorite,
       toggleFavorite,
@@ -156,8 +235,11 @@ export function DBProvider({ children }: { children: ReactNode }) {
       addNewLastRead,
       removeLastRead,
       toggleLastRead,
+      addNewLastSearch,
+      toggleLastSearch,
+      removeLastSearch,
     }),
-    [favorites, lastReads]
+    [favorites, lastReads, lastSearch]
   );
 
   return <DBContext.Provider value={value}>{children}</DBContext.Provider>;

@@ -208,19 +208,10 @@ export default function AnimatedHeader({
           {rightButtonPress && rightButtonIcon && (
             <Animated.View style={[iconStyle]}>
               <TouchableOpacity
-                style={[
-                  styles.barButton,
-                  {
-                    width: 35,
-                    height: 35,
-                    marginRight: 8,
-                    backgroundColor: "#ffffff69",
-                    borderRadius: 10,
-                  },
-                ]}
+                style={[styles.barButton, { width: 35, height: 35, marginRight: 8, borderRadius: 10, },]}
                 onPress={rightButtonPress}
               >
-                <Ionicons name={rightButtonIcon} size={18} color="#fff" />
+                <Ionicons name={rightButtonIcon} size={22} color="#fff" />
               </TouchableOpacity>
             </Animated.View>
           )}

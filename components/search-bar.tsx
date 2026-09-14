@@ -14,7 +14,6 @@ interface Props {
 export default function SearchBar({
   value,
   onChangeText,
-  dark = false,
 }: Props) {
   return (
     <View
@@ -44,5 +43,5 @@ export default function SearchBar({
 
 const styles = StyleSheet.create({
   container: { height: 42, borderRadius: 50, borderWidth: 1, paddingHorizontal: 15, flexDirection: "row", alignItems: "center", },
-  input: { flex: 1, marginHorizontal: 10, fontSize: 15, },
+  input: { flex: 1, marginHorizontal: 10, fontSize: 15, paddingVertical: 4, },
 });

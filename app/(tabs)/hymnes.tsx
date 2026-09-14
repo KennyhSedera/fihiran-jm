@@ -16,7 +16,6 @@ import {
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import hymnes from "@/assets/json/fihirana_jm.json";
 import AnimatedHeader from "@/components/animate-header";
 import { HymnRow } from "@/components/hymn-row";
 import SearchBar from "@/components/search-bar";
@@ -25,8 +24,6 @@ import { useDB } from "@/context/db-context";
 import { useAppColors } from "@/hooks/use-color";
 import { Hymn } from "@/types/hymn";
 import { searchHymn } from "@/utils/hymn.util";
-
-const data = hymnes as Hymn[];
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList<Hymn>);
 
@@ -58,7 +55,7 @@ function getAllYear(hymns: Hymn[]): string[] {
 
 export default function HymnesScreen() {
   const { isDark } = useApp();
-  const { isFavorite, favorites } = useDB();
+  const { hymns, favorites, toggleFavorite } = useDB();
   const [search, setSearch] = useState("");
   const [selectedYear, setSelectedYear] = useState<string | null>("all");
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -77,13 +74,13 @@ export default function HymnesScreen() {
 
   const flatResults = useMemo(() => {
     if (!isSearching) return [];
-    return searchHymn(search.trim().toLowerCase());
+    return searchHymn(search.trim().toLowerCase()).sort((a, b) => Number(a.id) - Number(b.id));
   }, [search, isSearching]);
 
   const yearFilteredData = useMemo(() => {
-    if (!selectedYear) return data;
-    if (selectedYear === "all") return data;
-    return data.filter((hymn) => hymn.year === selectedYear);
+    if (!selectedYear) return hymns;
+    if (selectedYear === "all") return hymns;
+    return hymns.filter((hymn) => hymn.year === selectedYear).sort((a, b) => Number(a.id) - Number(b.id));
   }, [selectedYear]);
 
   const sections = useMemo(() => {
@@ -100,8 +97,10 @@ export default function HymnesScreen() {
         <HymnRow
           item={item}
           search={search}
-          icon={isfav ? "heart" : undefined}
+          icon={isfav ? "heart" : "heart-outline"}
           iconColor={isfav ? "#cc0000" : ""}
+          handlePress={() => setSearch("")}
+          onPress={() => toggleFavorite(item.id)}
         />
       );
     },
@@ -109,7 +108,7 @@ export default function HymnesScreen() {
   );
 
   const keyExtractor = useCallback(
-    (item: Hymn) => `${item.id}_${item.year}`,
+    (item: Hymn) => `${item.id}`,
     []
   );
 
@@ -206,7 +205,7 @@ export default function HymnesScreen() {
                 Tous
               </Text>
             </TouchableOpacity>
-            {getAllYear(data).map((year) => {
+            {getAllYear(hymns).map((year) => {
               const active = selectedYear === year;
 
               return (
@@ -313,7 +312,7 @@ const styles = StyleSheet.create({
   searchContainer: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 12, marginTop: 20, },
   search: { paddingHorizontal: 0, flex: 1, },
   filterText: { fontSize: 11, fontWeight: "700", textAlign: "center" },
-  yearScroll: { marginTop: 14 },
+  yearScroll: { marginTop: 14, },
   yearScrollContent: { flexDirection: "row", alignItems: "center", gap: 10, paddingRight: 10 },
   year: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: "#ffffff26", },
   yearActive: { backgroundColor: "#ffffff", },

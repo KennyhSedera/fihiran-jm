@@ -1,27 +1,24 @@
-import hymnes from "@/assets/json/fihirana_jm.json";
 import { HymnRow } from "@/components/hymn-row";
 import ParallaxScrollView from "@/components/parallax-scroll-view";
-import SearchBar from "@/components/search-bar";
 import { useApp } from "@/context/app-context";
 import { useDB } from "@/context/db-context";
 import { useAppColors } from "@/hooks/use-color";
-import { Hymn } from "@/types/hymn";
-import { Ionicons } from "@expo/vector-icons";
+import { categoryMap } from "@/types/hymn";
+import { Entypo, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
-const data = hymnes as Hymn[];
+import { Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function HomeScreen() {
   const { isDark, fontFamily } = useApp();
-  const [search, setSearch] = useState("");
   const { bgOverlay, card, text, muted, } = useAppColors(isDark);
-
-  const { favorites, lastReads } = useDB();
+  const { favorites, lastReads, hymns } = useDB();
 
   const categories = Array.from(
-    new Set(data.map((item) => item.category).filter(Boolean))
+    new Set(
+      hymns
+        .map((item) => categoryMap[item.category] ?? "Autres")
+        .filter(Boolean)
+    )
   ).sort();
 
   const renderHeader = (
@@ -46,88 +43,55 @@ export default function HomeScreen() {
           </View>
         </View>
         <View style={styles.search}>
-          <SearchBar value={search} onChangeText={setSearch} dark={isDark} />
+          <Pressable style={styles.searchContainer} onPress={() => router.push("/search")}>
+            <Ionicons name="search" size={20} color="#fff" />
+            <Text style={styles.searchPlaceholder}>Mitadiava hira ...</Text>
+          </Pressable>
         </View>
       </View>
       <Image style={styles.imageHeader} source={require("@/assets/images/jma.jpg")} />
     </View>
   )
+
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ dark: card, light: card }}
       headerImage={renderHeader}
     >
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.content}
-      >
+      <View style={styles.content}>
         <View style={styles.stats}>
-          <View
-            style={[
-              styles.statCard,
-              { backgroundColor: card },
-            ]}
-          >
-            <Text
-              style={[
-                styles.statNumber,
-                { color: text },
-              ]}
-            >
-              {data.length}
-            </Text>
+          <Pressable onPress={() => router.navigate("/hymnes")} style={[styles.statCard, { backgroundColor: card },]} >
+            <Entypo name="note" size={30} color={muted} />
+            <View>
+              <Text style={[styles.statNumber, { color: text },]} >
+                {hymns.length}
+              </Text>
 
-            <Text
-              style={[
-                styles.statLabel,
-                { color: muted },
-              ]}
-            >
-              Hira
-            </Text>
-          </View>
+              <Text style={[styles.statLabel, { color: muted },]} >
+                Hira
+              </Text>
+            </View>
+          </Pressable>
 
-          <View
-            style={[
-              styles.statCard,
-              { backgroundColor: card },
-            ]}
-          >
-            <Text
-              style={[
-                styles.statNumber,
-                { color: text },
-              ]}
-            >
-              {categories.length}
-            </Text>
+          <Pressable onPress={() => router.navigate("/favorites")} style={[styles.statCard, { backgroundColor: card },]} >
+            <Ionicons name="heart" size={30} color={muted} />
+            <View>
+              <Text style={[styles.statNumber, { color: text },]} >
+                {favorites.length}
+              </Text>
 
-            <Text
-              style={[
-                styles.statLabel,
-                { color: muted },
-              ]}
-            >
-              Sokajy
-            </Text>
-          </View>
+              <Text style={[styles.statLabel, { color: muted },]} >
+                Favoris
+              </Text>
+            </View>
+          </Pressable>
         </View>
 
         <View style={styles.sectionHeader}>
-          <Text
-            style={[
-              styles.sectionTitle,
-              { color: text },
-            ]}
-          >
+          <Text style={[styles.sectionTitle, { color: text },]} >
             Sokajy
           </Text>
 
-          <TouchableOpacity
-            onPress={() =>
-              router.push("/hymnes")
-            }
-          >
+          <TouchableOpacity onPress={() => router.push("/hymnes")} >
             <Text style={styles.seeAll}>
               Hijery rehetra
             </Text>
@@ -140,7 +104,6 @@ export default function HomeScreen() {
           contentContainerStyle={{ gap: 10, }}
         >
           {categories
-            .slice(0, 8)
             .map((category) => (
               <TouchableOpacity
                 key={category}
@@ -182,8 +145,8 @@ export default function HomeScreen() {
         </View>}
 
         {favorites.slice(0, 5).map((hymn) => (<HymnRow key={hymn.id} item={hymn} icon="heart" iconColor="#cc0000" />))}
+      </View>
 
-      </ScrollView>
     </ParallaxScrollView>
   );
 }
@@ -194,18 +157,20 @@ const styles = StyleSheet.create({
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, },
   headerOverlay: { height: "100%", width: "100%", bottom: 0, left: 0, flexDirection: "column", justifyContent: "flex-end", position: 'absolute', zIndex: 1 },
   search: { paddingHorizontal: 20, paddingTop: 25, paddingBottom: 50 },
+  searchContainer: { flexDirection: "row", alignItems: "center", gap: 8, borderWidth: 1, borderColor: "#e6edf5", borderRadius: 50, paddingVertical: 13, paddingHorizontal: 15, },
+  searchPlaceholder: { color: "#d4d4d4", fontSize: 16, },
   imageHeader: { height: "100%", width: "100%", },
   greeting: { fontSize: 18, },
   appTitle: { fontSize: 32, fontWeight: "700", marginTop: 2, },
   logo: { width: 46, height: 46, borderRadius: 17, backgroundColor: "#cc0000", justifyContent: "center", alignItems: "center", },
   hero: { marginTop: 25, borderRadius: 28, padding: 25, backgroundColor: "#cc0000", },
-  heroIcon: { width: 60, height: 60, borderRadius: 19, backgroundColor: "rgba(255,255,255,0.15)", justifyContent: "center", alignItems: "center", },
+  heroIcon: { width: 60, height: 60, borderRadius: 19, backgroundColor: "#ffffff26", justifyContent: "center", alignItems: "center", },
   heroTitle: { color: "#FFFFFF", fontSize: 27, fontWeight: "700", marginTop: 18, },
   heroDescription: { color: "#D8E2EC", fontSize: 14, lineHeight: 21, marginTop: 8, },
   heroButton: { marginTop: 22, height: 50, borderRadius: 15, backgroundColor: "#FFFFFF", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, },
   heroButtonText: { color: "#cc0000", fontSize: 15, fontWeight: "700", },
   stats: { flexDirection: "row", gap: 12, marginTop: 15, },
-  statCard: { flex: 1, padding: 18, borderRadius: 18, },
+  statCard: { flex: 1, padding: 18, borderRadius: 18, flexDirection: "row", alignItems: "center", gap: 10, },
   statNumber: { fontSize: 25, fontWeight: "800", },
   statLabel: { marginTop: 3, fontSize: 13, },
   sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 28, marginBottom: 13, },
@@ -219,4 +184,7 @@ const styles = StyleSheet.create({
   hymnTitle: { fontSize: 16, fontWeight: "700", },
   card: { minHeight: 70, padding: 12, borderRadius: 17, marginBottom: 9, flexDirection: "column", alignItems: "center", },
   hymnCategory: { fontSize: 12, marginTop: 3, textTransform: "capitalize", },
+  empty: { alignItems: "center", paddingTop: 80 },
+  emptyTitle: { fontSize: 18, fontWeight: "700", marginTop: 15 },
+  emptyText: { marginTop: 5 },
 });

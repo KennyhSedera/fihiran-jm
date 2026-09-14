@@ -52,7 +52,6 @@ export default function DraggableFloatingButton({
     y: initialY,
   });
 
-  // Charge la position sauvegardée au montage
   useEffect(() => {
     let cancelled = false;
 
@@ -64,7 +63,6 @@ export default function DraggableFloatingButton({
 
         const parsed = JSON.parse(saved) as { x: number; y: number };
 
-        // Re-clamp au cas où la taille d'écran aurait changé (rotation, autre device)
         const x = Math.max(
           EDGE_MARGIN,
           Math.min(SCREEN_WIDTH - size - EDGE_MARGIN, parsed.x)
@@ -78,7 +76,7 @@ export default function DraggableFloatingButton({
         startPosition.current = { x, y };
         position.setValue({ x, y });
       } catch {
-        // ignore silencieusement, on garde la position par défaut
+
       }
     }
 
@@ -92,7 +90,7 @@ export default function DraggableFloatingButton({
   const savePosition = (x: number, y: number) => {
     AsyncStorage.setItem(storageFullKey, JSON.stringify({ x, y })).catch(
       () => {
-        // ignore silencieusement
+
       }
     );
   };

@@ -17,6 +17,13 @@ export async function initDB(db: SQLiteDatabase) {
       updated_at TEXT NOT NULL
     )
   `);
+  await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS last_search (
+      id TEXT PRIMARY KEY NOT NULL,
+      number Text NOT NULL,
+      search_at TEXT NOT NULL
+    )
+  `);
 }
 
 export function Controller(db: SQLiteDatabase) {
@@ -76,6 +83,36 @@ export function Controller(db: SQLiteDatabase) {
     );
   };
 
+  // Last Search
+  const addNewLastSearch = async (number: string) => {
+    const now = new Date().toISOString();
+
+    await db.runAsync(
+      ` INSERT OR IGNORE INTO last_search ( id, number, search_at ) VALUES (?, ?, ?) `,
+      now, number, now
+    );
+  };
+
+  const getLastSearch = () => {
+    return db.getAllAsync(
+      ` SELECT * FROM last_search ORDER BY search_at DESC `
+    );
+  };
+
+  const updateLastSearch = async (number: string) => {
+    await db.runAsync(
+      ` UPDATE last_search SET search_at = ? WHERE number = ? `,
+      new Date().toISOString(), number
+    );
+  };
+
+  const removeLastSearch = async (number: string) => {
+    await db.runAsync(
+      ` DELETE FROM last_search WHERE number = ? `,
+      number
+    );
+  };
+
   return {
     addNewFavorite,
     removeFavorite,
@@ -84,5 +121,9 @@ export function Controller(db: SQLiteDatabase) {
     removeLastRead,
     getLastReads,
     updateLastRead,
+    addNewLastSearch,
+    getLastSearch,
+    updateLastSearch,
+    removeLastSearch
   };
 }

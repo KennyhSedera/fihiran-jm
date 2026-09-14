@@ -4,7 +4,7 @@
     "slug": "fihiran-jm",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/fihirana.png",
     "scheme": "fihiranjm",
     "userInterfaceStyle": "automatic",
     "ios": {
@@ -13,23 +13,23 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE00",
-        "foregroundImage": "./assets/images/icon.png",
-        "backgroundImage": "./assets/images/icon.png",
-        "monochromeImage": "./assets/images/icon.png"
+        "foregroundImage": "./assets/images/icon2.png",
+        "backgroundImage": "./assets/images/icon2.png",
+        "monochromeImage": "./assets/images/icon2.png"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.kennyh2.x0.fihiranjm"
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/images.jpg"
+      "favicon": "./assets/images/fihirana.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/hymn.png",
+          "image": "./assets/images/icon2.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#cc0000",

@@ -5,7 +5,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { SQLiteProvider } from "expo-sqlite";
 import { Suspense, useEffect, useState } from "react";
-import { Image, StatusBar, StyleSheet, Text, View } from "react-native";
+import { Image, StatusBar, StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
@@ -29,7 +29,7 @@ function RootNavigator() {
 }
 
 function CustomSplash() {
-  const logoUrl = require("@/assets/images/hymnb.png");
+  const logoUrl = require("@/assets/images/icon2.png");
 
   return (
     <Animated.View
@@ -50,7 +50,6 @@ function CustomSplash() {
           style={styles.splashImage}
           resizeMode="contain"
         />
-        <Text style={styles.splashText}>Fihirana Jesosy Mamonjy</Text>
       </View>
     </Animated.View>
   );

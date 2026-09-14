@@ -10,26 +10,23 @@ import Animated, {
 
 import { useApp } from '@/context/app-context';
 import { useAppColors } from '@/hooks/use-color';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useThemeColor } from '@/hooks/use-theme-color';
 
 const HEADER_HEIGHT = 250;
 
 type Props = PropsWithChildren<{
   headerImage: ReactElement;
-  headerBackgroundColor: { dark: string; light: string };
 }>;
 
 export default function ParallaxScrollView({
   children,
   headerImage,
-  headerBackgroundColor,
 }: Props) {
-  const backgroundColor = useThemeColor({}, 'background');
-  const colorScheme = useColorScheme() ?? 'light';
-  const resolvedColorScheme = colorScheme === 'dark' ? 'dark' : 'light';
+  const { isDark } = useApp();
+  const { bg } = useAppColors(isDark);
+
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useScrollOffset(scrollRef);
+
   const headerAnimatedStyle = useAnimatedStyle(() => {
     return {
       transform: [
@@ -47,9 +44,6 @@ export default function ParallaxScrollView({
     };
   });
 
-  const { isDark } = useApp();
-  const { bg } = useAppColors(isDark);
-
   const headerStyle = useAnimatedStyle(() => {
     return {
       height: interpolate(
@@ -62,12 +56,15 @@ export default function ParallaxScrollView({
   });
 
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1, backgroundColor: bg }}>
       <Animated.View style={[{ backgroundColor: bg, }, headerStyle]} />
       <Animated.ScrollView
         ref={scrollRef}
-        style={{ backgroundColor, flex: 1 }}
-        scrollEventThrottle={16}>
+        style={{ backgroundColor: bg, flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1 }}
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
+      >
         <Animated.View
           style={[
             styles.header,
@@ -85,5 +82,5 @@ export default function ParallaxScrollView({
 const styles = StyleSheet.create({
   container: { flex: 1, },
   header: { height: HEADER_HEIGHT, overflow: 'hidden', },
-  content: { flex: 1, padding: 12, gap: 16, overflow: 'hidden', },
+  content: { padding: 12, gap: 16, overflow: 'hidden', },
 });
