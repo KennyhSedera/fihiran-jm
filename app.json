@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Fihiran Jesosy Mamonjy",
+    "name": "Fihiran JM",
     "slug": "fihiran-jm",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -12,19 +12,19 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE00",
-        "foregroundImage": "./assets/images/icon2.png",
-        "backgroundImage": "./assets/images/icon2.png",
-        "monochromeImage": "./assets/images/icon2.png"
+        "backgroundColor": "#cc0000",
+        "foregroundImage": "./assets/images/fihirana.png", 
+        "monochromeImage": "./assets/images/fihirana.png"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.kennyh2.x0.fihiranjm"
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/fihirana.png"
+      "favicon": "./assets/images/icon2.png"
     },
     "plugins": [
+      "./plugins/withForceDarkDisabled.ts",
       "expo-router",
       [
         "expo-splash-screen",

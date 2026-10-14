@@ -58,6 +58,7 @@ export default function AnimatedHymnHeader({
   title,
   number,
   category,
+  keySig,
   fontFamily,
   draggableButton,
 }: Props) {
@@ -171,8 +172,8 @@ export default function AnimatedHymnHeader({
             >
               {title}
             </Text>
-            <Text style={[styles.category, { fontFamily }]}>
-              {category}
+            <Text style={[styles.category]}>
+              {category && category}  {keySig && <Text style={[styles.keySig, { fontFamily }]}>({keySig})</Text>}
             </Text>
           </View>
         </Animated.View>
@@ -245,13 +246,17 @@ const styles = StyleSheet.create({
   expandedContent: {
     flex: 1,
     borderRadius: 20,
-    gap: 5,
+    overflow: "hidden",
+    gap: 8,
     flexDirection: "column",
     alignItems: "center",
+    justifyContent: "flex-start",
+    maxWidth: "90%",
+    marginLeft: "5%",
   },
   numberBox: {
-    height: 60,
-    paddingHorizontal: 20,
+    height: 45,
+    paddingHorizontal: 18,
     borderRadius: 16,
     backgroundColor: "#ffffff",
     justifyContent: "center",
@@ -259,29 +264,28 @@ const styles = StyleSheet.create({
   },
   numberText: {
     color: "#cc0000",
-    fontSize: 28,
-    fontWeight: "500",
+    fontSize: 24,
+    fontWeight: "800",
   },
   info: {
     alignItems: "center",
     justifyContent: "center",
-    marginLeft: 18,
+    marginLeft: 12,
   },
   title: {
-    fontSize: 23,
+    fontSize: 22,
     lineHeight: 27,
     fontWeight: "700",
   },
   category: {
     color: "#ffe7e7",
-    fontSize: 18,
-    fontWeight: "600",
-    fontStyle: "italic",
+    fontSize: 14,
+    fontWeight: "400",
     textTransform: "capitalize",
     marginTop: 5,
   },
   keySig: {
     fontSize: 13,
-    marginTop: 4,
+    marginLeft: 4,
   },
 });

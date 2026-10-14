@@ -183,8 +183,7 @@ export function DBProvider({ children }: { children: ReactNode }) {
 
   async function toggleLastSearch(id: string) {
     const existing = lastSearch.some((f) => f.id === id);
-    console.log({ id, existing });
-
+    
     try {
       if (existing) {
         await updateLastSearch(id);

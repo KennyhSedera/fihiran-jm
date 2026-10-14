@@ -122,12 +122,6 @@ export default function HomeScreen() {
           <Text style={[styles.sectionTitle, { color: text },]} >
             Novakiana farany
           </Text>
-
-          <TouchableOpacity onPress={() => router.push("/hymnes")} >
-            <Text style={styles.seeAll}>
-              Tous
-            </Text>
-          </TouchableOpacity>
         </View>}
 
         {lastReads.map((hymn) => (<HymnRow key={hymn.id} item={hymn} icon="musical-note" />))}
@@ -139,7 +133,7 @@ export default function HomeScreen() {
 
           <TouchableOpacity onPress={() => router.push("/favorites")} >
             <Text style={styles.seeAll}>
-              Tous
+              Hijery rehetra
             </Text>
           </TouchableOpacity>
         </View>}

@@ -85,7 +85,7 @@ export default function HymnScreen() {
         <AnimatedHymnHeader
           onBack={() => router.back()}
           onToggleFavorite={() => toggleFavorite(hymn.id)}
-          maxHeight={180}
+          maxHeight={160}
           minHeight={45}
           insets={insets}
           backgroundColor={bg}
