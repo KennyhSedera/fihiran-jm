@@ -67,7 +67,7 @@ export default function HomeScreen() {
               </Text>
 
               <Text style={[styles.statLabel, { color: muted },]} >
-                Hira
+                Tonokira
               </Text>
             </View>
           </Pressable>
@@ -80,7 +80,7 @@ export default function HomeScreen() {
               </Text>
 
               <Text style={[styles.statLabel, { color: muted },]} >
-                Favoris
+                Tiako
               </Text>
             </View>
           </Pressable>
@@ -112,7 +112,7 @@ export default function HomeScreen() {
               >
                 <Ionicons name="musical-note" size={18} color="#cc0000" />
                 <Text style={[styles.categoryText, { color: text },]} >
-                  {category}
+                  {category === "Autres" ? "Mifangaro" : category[0].toUpperCase() + category.slice(1)}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -128,7 +128,7 @@ export default function HomeScreen() {
 
         {favorites.length > 0 && <View style={[styles.sectionHeader, { marginTop: 30 },]} >
           <Text style={[styles.sectionTitle, { color: text },]} >
-            Favoris
+            Ireo tiako
           </Text>
 
           <TouchableOpacity onPress={() => router.push("/favorites")} >

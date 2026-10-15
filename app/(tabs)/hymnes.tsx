@@ -22,6 +22,7 @@ import SearchBar from "@/components/search-bar";
 import { useApp } from "@/context/app-context";
 import { useDB } from "@/context/db-context";
 import { useAppColors } from "@/hooks/use-color";
+import { usePlayerPadding } from "@/hooks/use-player-padding";
 import { Hymn } from "@/types/hymn";
 import { searchHymn } from "@/utils/hymn.util";
 
@@ -67,6 +68,8 @@ export default function HymnesScreen() {
   const { bg, text, muted, } = useAppColors(isDark);
   const isSearching = !!search.trim();
 
+  const playerPadding = usePlayerPadding();
+
   const favoriteIds = useMemo(
     () => new Set(favorites.map((f) => f.id)),
     [favorites]
@@ -74,14 +77,16 @@ export default function HymnesScreen() {
 
   const flatResults = useMemo(() => {
     if (!isSearching) return [];
-    return searchHymn(search.trim().toLowerCase()).sort((a, b) => Number(a.id) - Number(b.id));
-  }, [search, isSearching]);
+    return searchHymn(search.trim().toLowerCase(), hymns)
+      .sort((a, b) => Number(a.id) - Number(b.id));
+  }, [search, isSearching, hymns]);
 
   const yearFilteredData = useMemo(() => {
-    if (!selectedYear) return hymns;
-    if (selectedYear === "all") return hymns;
-    return hymns.filter((hymn) => hymn.year === selectedYear).sort((a, b) => Number(a.id) - Number(b.id));
-  }, [selectedYear]);
+    if (!selectedYear || selectedYear === "all") return hymns;
+    return hymns
+      .filter((hymn) => hymn.year === selectedYear)
+      .sort((a, b) => Number(a.id) - Number(b.id));
+  }, [hymns, selectedYear]);
 
   const sections = useMemo(() => {
     if (isSearching) return [];
@@ -106,6 +111,7 @@ export default function HymnesScreen() {
     },
     [search, favoriteIds]
   );
+
 
   const keyExtractor = useCallback(
     (item: Hymn) => `${item.id}`,
@@ -168,7 +174,7 @@ export default function HymnesScreen() {
               <Text style={[styles.title, { color: "#ffffff" }]}>Fihirana</Text>
 
               <Text style={[styles.subtitle, { color: "#ececec" }]}>
-                {totalCount} chanson{totalCount > 1 && "s"}
+                {totalCount} tonokira
               </Text>
             </View>
 
@@ -180,9 +186,9 @@ export default function HymnesScreen() {
             <View style={styles.search}>
               <SearchBar value={search} onChangeText={setSearch} dark={isDark} />
             </View>
-            <TouchableOpacity activeOpacity={0.6} onPress={() => { setMaxHeight(showYear ? 150 : 220); setShowYear(!showYear) }}>
+            <TouchableOpacity activeOpacity={0.6} onPress={() => { setMaxHeight(showYear ? 150 : 220); setShowYear(!showYear) }} style={styles.filter}>
               <Ionicons name={showYear ? "close" : "filter-sharp"} size={24} color="#fff" />
-              <Text style={[styles.filterText, { color: "#fff" }]}>{selectedYear === "all" ? "Tous" : selectedYear}</Text>
+              <Text style={[styles.filterText, { color: "#fff" }]}>{selectedYear === "all" ? "Rehetra" : selectedYear}</Text>
             </TouchableOpacity>
           </View>
           {showYear && <ScrollView
@@ -202,7 +208,7 @@ export default function HymnesScreen() {
                   { color: selectedYear === "all" ? "#cc0000" : "#ffffff" },
                 ]}
               >
-                Tous
+                Rehetra
               </Text>
             </TouchableOpacity>
             {getAllYear(hymns).map((year) => {
@@ -260,7 +266,7 @@ export default function HymnesScreen() {
               scrollEventThrottle={scrollEventThrottle}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={[
-                { padding: 10, paddingBottom: 100, marginTop: 20 },
+                { padding: 10, paddingBottom: 100 + playerPadding, marginTop: 20 },
                 contentContainerStyle,
               ]}
               ListEmptyComponent={emptyComponent}
@@ -291,7 +297,7 @@ export default function HymnesScreen() {
             scrollEventThrottle={scrollEventThrottle}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={[
-              { padding: 10, paddingBottom: 100, marginTop: 20 },
+              { padding: 10, paddingBottom: 100 + playerPadding, marginTop: 20 },
               contentContainerStyle,
             ]}
             ListEmptyComponent={emptyComponent}
@@ -324,4 +330,5 @@ const styles = StyleSheet.create({
   emptyText: { marginTop: 5 },
   scrollTopWrapper: { position: "absolute", right: 20, bottom: 85, zIndex: 200, },
   scrollTopButton: { width: 50, height: 50, borderRadius: 25, backgroundColor: "#cc0000", alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.25, shadowRadius: 6, elevation: 6, },
+  filter: { maxWidth: 48, alignItems: "center", justifyContent: "center", },
 });

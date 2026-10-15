@@ -10,6 +10,7 @@ import Animated, {
 
 import { useApp } from '@/context/app-context';
 import { useAppColors } from '@/hooks/use-color';
+import { usePlayerPadding } from '@/hooks/use-player-padding';
 
 const HEADER_HEIGHT = 250;
 
@@ -23,6 +24,7 @@ export default function ParallaxScrollView({
 }: Props) {
   const { isDark } = useApp();
   const { bg } = useAppColors(isDark);
+  const playerPadding = usePlayerPadding();
 
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useScrollOffset(scrollRef);
@@ -61,7 +63,7 @@ export default function ParallaxScrollView({
       <Animated.ScrollView
         ref={scrollRef}
         style={{ backgroundColor: bg, flex: 1 }}
-        contentContainerStyle={{ flexGrow: 1 }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: playerPadding }}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
       >

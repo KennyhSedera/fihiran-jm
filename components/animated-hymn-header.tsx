@@ -1,4 +1,5 @@
 import { useApp } from "@/context/app-context";
+import { usePlayerPadding } from "@/hooks/use-player-padding";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { ReactNode } from "react";
@@ -32,6 +33,7 @@ type Props = {
   number: number | string;
   category: string;
   keySig?: string;
+  year?: string;
   cardBackgroundColor: string;
   textColor: string;
   mutedColor?: string;
@@ -59,6 +61,7 @@ export default function AnimatedHymnHeader({
   number,
   category,
   keySig,
+  year,
   fontFamily,
   draggableButton,
 }: Props) {
@@ -66,7 +69,7 @@ export default function AnimatedHymnHeader({
   const topMin = minHeight + insets.top;
   const range = topMax - topMin;
   const { isDark } = useApp();
-
+  const playerPadding = usePlayerPadding();
   const scrollY = useSharedValue(0);
 
   const onScroll = useAnimatedScrollHandler((event) => {
@@ -118,6 +121,12 @@ export default function AnimatedHymnHeader({
         ),
       },
     ],
+    height: interpolate(
+      scrollY.value,
+      [0, range * 0.3],
+      [0, 72],
+      Extrapolation.CLAMP
+    )
   }));
 
   return (
@@ -128,7 +137,7 @@ export default function AnimatedHymnHeader({
         end={{ x: 0.8, y: 1 }}
         style={[styles.header, headerStyle]}
       >
-        <View style={[styles.bar, { paddingTop: insets.top }]}>
+        <Animated.View style={[styles.bar, { paddingTop: insets.top }, compactTitleStyle]}>
           <TouchableOpacity style={styles.barButton} onPress={onBack}>
             <Ionicons name="chevron-back" size={31} color="#FFFFFF" />
           </TouchableOpacity>
@@ -136,7 +145,7 @@ export default function AnimatedHymnHeader({
           <View style={styles.barTextRow}>
             <Animated.Text
               numberOfLines={1}
-              style={[styles.barTitle, compactTitleStyle]}
+              style={[styles.barTitle]}
             >
               {number}.  {title}
             </Animated.Text>
@@ -152,17 +161,34 @@ export default function AnimatedHymnHeader({
               color="#FFFFFF"
             />
           </TouchableOpacity>
-        </View>
+        </Animated.View>
 
         <Animated.View
           style={[
             styles.expandedContent,
-            { backgroundColor: "transparent" },
+            { backgroundColor: "transparent", paddingTop: 20, position: "relative" },
             expandedStyle,
           ]}
         >
+          <View style={[styles.actions,]}>
+            <TouchableOpacity style={styles.barButton} onPress={onBack}>
+              <Ionicons name="chevron-back" size={31} color="#FFFFFF" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.barButton}
+              onPress={onToggleFavorite}
+            >
+              <Ionicons
+                name={isFavorite ? "heart" : "heart-outline"}
+                size={27}
+                color="#FFFFFF"
+              />
+            </TouchableOpacity>
+          </View>
           <View style={styles.numberBox}>
             <Text style={styles.numberText}>{number}</Text>
+            {year && year !== "JM" && <Text style={styles.yearText}>{`noely ${year}`}</Text>}
           </View>
 
           <View style={styles.info}>
@@ -173,7 +199,7 @@ export default function AnimatedHymnHeader({
               {title}
             </Text>
             <Text style={[styles.category]}>
-              {category && category}  {keySig && <Text style={[styles.keySig, { fontFamily }]}>({keySig})</Text>}
+              {category && category}   {keySig && <Text style={[styles.keySig, { fontFamily }]}>({keySig})</Text>}
             </Text>
           </View>
         </Animated.View>
@@ -186,7 +212,7 @@ export default function AnimatedHymnHeader({
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingTop: topMax,
-          paddingBottom: 50 + insets.bottom,
+          paddingBottom: 50 + insets.bottom + playerPadding,
         }}
       >
         {children}
@@ -251,14 +277,15 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "flex-start",
-    maxWidth: "90%",
-    marginLeft: "5%",
+    maxWidth: "96%",
+    marginHorizontal: "2%",
   },
   numberBox: {
-    height: 45,
+    height: 50,
     paddingHorizontal: 18,
     borderRadius: 16,
     backgroundColor: "#ffffff",
+    flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -288,4 +315,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginLeft: 4,
   },
+  yearText: {
+    color: "#5e0000",
+    fontSize: 10,
+    fontWeight: "400",
+    textTransform: "capitalize",
+  },
+  actions: { position: 'absolute', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', top: 0 }
 });

@@ -7,6 +7,7 @@ export interface Hymn {
   year: string;
   collection: string;
   content: string;
+  music?: string;
 }
 
 export interface HymnVerse {
@@ -126,3 +127,11 @@ export function getMainCategory(category?: string | null): string {
 
   return categoryMap[category] ?? "Autres";
 }
+
+export type Track = {
+  id: string;
+  number: number | null;
+  year: number | null;
+  title: string;
+  url: string;
+};

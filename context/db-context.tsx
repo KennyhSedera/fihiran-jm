@@ -1,5 +1,7 @@
 import { Controller, initDB } from "@/api/db.sqlite";
 import hymnes from "@/assets/json/fihirana_jm.json";
+import { useOnline } from "@/hooks/use-online";
+import { attachMusic } from "@/scripts/supbase";
 import { DBContextType, Favorite, LastReads, LastSearch } from "@/types/db.type";
 import { Hymn } from "@/types/hymn";
 import { useSQLiteContext } from "expo-sqlite";
@@ -14,17 +16,35 @@ export function DBProvider({ children }: { children: ReactNode }) {
   const [favorites, setFavorites] = useState<Hymn[]>([]);
   const [lastReads, setLastReads] = useState<Hymn[]>([]);
   const [lastSearch, setLastSearch] = useState<Hymn[]>([]);
+  const [allHymns, setAllHymns] = useState<Hymn[]>(data);
+
+  const isOnline = useOnline();
+
+  useEffect(() => {
+    if (!isOnline) return;
+    async function fetchMusic() {
+      try {
+        const hym = await attachMusic(data)
+        setAllHymns(hym);
+      } catch (e) {
+        console.error('Erreur chargement musiques:', e);
+      }
+    }
+
+    fetchMusic();
+  }, [isOnline]);
+
 
   const controller = Controller(db);
 
   function getHymnsInFavorites(fav: Favorite[]): Hymn[] {
-    return data
+    return allHymns
       .filter((item) => fav.some((fav) => fav.hymn_id === item.id))
       .sort((a, b) => a.number - b.number);
   }
 
   function getHymnsInLastReads(last: LastReads[]): Hymn[] {
-    const hymnsMap = new Map(data.map((hymn) => [String(hymn.id), hymn]));
+    const hymnsMap = new Map(allHymns.map((hymn) => [String(hymn.id), hymn]));
 
     return last
       .map((lastRead) => hymnsMap.get(String(lastRead.hymn_id)))
@@ -34,7 +54,7 @@ export function DBProvider({ children }: { children: ReactNode }) {
   function getHymnsInLastSearch(last: LastSearch[]): Hymn[] {
     return last
       .map((lastSearch) =>
-        data.find(
+        allHymns.find(
           (hymn) => hymn.id === lastSearch.number
         ) ?? null
       )
@@ -183,7 +203,7 @@ export function DBProvider({ children }: { children: ReactNode }) {
 
   async function toggleLastSearch(id: string) {
     const existing = lastSearch.some((f) => f.id === id);
-    
+
     try {
       if (existing) {
         await updateLastSearch(id);
@@ -212,17 +232,21 @@ export function DBProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function setup() {
       await initDB(db);
-      getFavorites();
-      getLastReads();
-      getLastSearch();
     }
 
     setup();
   }, [db]);
 
+  useEffect(() => {
+    if (allHymns === data) return;
+    getFavorites();
+    getLastReads();
+    getLastSearch();
+  }, [allHymns]);
+
   const value = useMemo(
     () => ({
-      hymns: data,
+      hymns: allHymns,
       favorites,
       lastReads,
       lastSearch,
@@ -238,7 +262,7 @@ export function DBProvider({ children }: { children: ReactNode }) {
       toggleLastSearch,
       removeLastSearch,
     }),
-    [favorites, lastReads, lastSearch]
+    [favorites, lastReads, lastSearch, allHymns]
   );
 
   return <DBContext.Provider value={value}>{children}</DBContext.Provider>;

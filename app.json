@@ -13,7 +13,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#cc0000",
-        "foregroundImage": "./assets/images/fihirana.png", 
+        "foregroundImage": "./assets/images/fihirana.png",
         "monochromeImage": "./assets/images/fihirana.png"
       },
       "predictiveBackGestureEnabled": false,
@@ -42,7 +42,8 @@
       "expo-image",
       "expo-status-bar",
       "expo-web-browser",
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-audio"
     ],
     "experiments": {
       "typedRoutes": true,

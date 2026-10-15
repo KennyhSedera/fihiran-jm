@@ -30,10 +30,10 @@ const ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
 };
 
 const LABELS: Record<string, string> = {
-  index: "Accueil",
+  index: "Fandraisana",
   hymnes: "Tonokira",
-  favorites: "Favoris",
-  settings: "Paramètres",
+  favorites: "Ireo tiako",
+  settings: "Fikirakirana",
 };
 
 export default function CustomTabBar({

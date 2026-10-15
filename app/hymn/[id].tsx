@@ -4,10 +4,11 @@ import {
   useLocalSearchParams,
   useRouter,
 } from "expo-router";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   StyleSheet,
   Text,
+  ToastAndroid,
   View
 } from "react-native";
 import {
@@ -16,11 +17,13 @@ import {
 } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import hymnes from "@/assets/json/fihirana_jm.json";
+import { ActionModal, ModalAction } from "@/components/action-modal";
 import AnimatedHymnHeader from "@/components/animated-hymn-header";
 import { useApp } from "@/context/app-context";
 import { useDB } from "@/context/db-context";
+import { usePlayer } from "@/context/player-context";
 import { useAppColors } from "@/hooks/use-color";
+import { useOnline } from "@/hooks/use-online";
 import { Hymn } from "@/types/hymn";
 import { parseHymnContent } from "@/utils/hymn.util";
 
@@ -29,18 +32,20 @@ export default function HymnScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { fontSize, isDark, fontFamily } = useApp();
-  const { isFavorite, toggleFavorite } = useDB();
+
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const { hymns, isFavorite, toggleFavorite } = useDB();
 
   const { hymn, prevHymn, nextHymn } = useMemo(() => {
-    const list = hymnes as Hymn[];
-    const idx = list.findIndex((item) => String(item.id) === String(id));
+    const idx = hymns.findIndex((item) => String(item.id) === String(id));
 
     return {
-      hymn: idx !== -1 ? list[idx] : undefined,
-      prevHymn: idx > 0 ? list[idx - 1] : null,
-      nextHymn: idx !== -1 && idx < list.length - 1 ? list[idx + 1] : null,
+      hymn: idx !== -1 ? hymns[idx] : undefined,
+      prevHymn: idx > 0 ? hymns[idx - 1] : null,
+      nextHymn: idx !== -1 && idx < hymns.length - 1 ? hymns[idx + 1] : null,
     };
-  }, [id]);
+  }, [hymns, id]);
 
   const goToHymn = (target: Hymn | null) => {
     if (!target) return;
@@ -70,6 +75,48 @@ export default function HymnScreen() {
     );
   }
 
+  const isOnline = useOnline();
+  const { playHymn, current, status, isDownloaded, download, removeDownload, downloading } = usePlayer();
+  const isPlaying = current?.id === hymn.id && status.playing;
+
+  function handlePlayMusic(item: Hymn) {
+    const dl = isDownloaded(item.id);
+
+    if (!dl && !item.music) {
+      return ToastAndroid.show("Mbola tsy misy hira.", ToastAndroid.SHORT);
+    }
+    if (!dl && !isOnline) {
+      return ToastAndroid.show("Tsy misy internet.", ToastAndroid.SHORT);
+    }
+    setModalVisible(true);
+  }
+
+  const modalActions: ModalAction[] = isDownloaded(hymn.id)
+    ? [
+      { label: "Henoy", icon: "play-circle-outline", onPress: () => playHymn(hymn) },
+      {
+        label: "Fafao ny nalaina",
+        icon: "trash-outline",
+        destructive: true,
+        onPress: () => removeDownload(hymn.id),
+      },
+    ]
+    : [
+      { label: "Henoy an-tserasera", icon: "wifi-outline", onPress: () => playHymn(hymn) },
+      {
+        label: "Alaina",
+        icon: "cloud-download-outline",
+        onPress: async () => {
+          try {
+            await download(hymn);
+            ToastAndroid.show("Voaray ny hira.", ToastAndroid.SHORT);
+          } catch {
+            ToastAndroid.show("Tsy nahomby ny famakiana.", ToastAndroid.SHORT);
+          }
+        },
+      },
+    ];
+
   const { bg, card, text, muted, } = useAppColors(isDark);
   const blocks = useMemo(() => parseHymnContent(hymn.content), [hymn.content]);
 
@@ -85,7 +132,7 @@ export default function HymnScreen() {
         <AnimatedHymnHeader
           onBack={() => router.back()}
           onToggleFavorite={() => toggleFavorite(hymn.id)}
-          maxHeight={160}
+          maxHeight={140}
           minHeight={45}
           insets={insets}
           backgroundColor={bg}
@@ -94,11 +141,15 @@ export default function HymnScreen() {
           number={hymn.number}
           category={hymn.category}
           keySig={hymn.keySig}
+          year={hymn.year}
           cardBackgroundColor={card}
           textColor={text}
           mutedColor={muted}
           fontFamily={fontFamily}
-          draggableButton={{ icon: "cog", onPress: () => router.push({ pathname: "/settings" }) }}
+          draggableButton={{
+            icon: !hymn.music ? "mic-off-sharp" : isPlaying ? "pause" : "headset",
+            onPress: () => handlePlayMusic(hymn)
+          }}
         >
           <View style={styles.reader}>
             {blocks.map((block, idx) => {
@@ -123,10 +174,7 @@ export default function HymnScreen() {
 
                   {block.kind === "verse" && (
                     <Text
-                      style={[
-                        styles.content,
-                        { color: "#cc0000", fontSize, lineHeight: fontSize * 1.3, fontFamily },
-                      ]}
+                      style={[styles.content, { color: "#cc0000", fontSize, lineHeight: fontSize * 1.3, fontFamily },]}
                     >
                       {`${block.number}. `}
                     </Text>
@@ -138,6 +186,16 @@ export default function HymnScreen() {
             })}
           </View>
         </AnimatedHymnHeader>
+        <ActionModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          title={`${hymn.number}. ${hymn.title}`}
+          subtitle={isDownloaded(hymn.id) ? "Voaray ao amin'ny findainao" : "Safidio ny fomba"}
+          actions={modalActions}
+          bg={card}
+          text={text}
+          muted={muted}
+        />
       </View>
     </PanGestureHandler>
   );

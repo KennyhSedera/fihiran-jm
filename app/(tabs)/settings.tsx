@@ -63,8 +63,8 @@ export default function SettingsScreen() {
     title: string;
     icon: keyof typeof Ionicons.glyphMap;
   }[] = [
-      { value: "light", title: "Mazava", icon: "sunny-outline" },
-      { value: "dark", title: "Maizina", icon: "moon-outline" },
+      { value: "light", title: "Clair", icon: "sunny-outline" },
+      { value: "dark", title: "Sombre", icon: "moon-outline" },
       { value: "system", title: "Telephone", icon: "phone-portrait-outline" },
     ];
 
@@ -239,7 +239,6 @@ export default function SettingsScreen() {
 
               <Text style={[styles.infoText, { color: muted }]}>
                 Les musiques sont telecharger et stockees sur votre appareil.
-                Fonctionnalités en cours de developpement
               </Text>
             </View>
           </View>

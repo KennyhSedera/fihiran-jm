@@ -1,4 +1,5 @@
 import { useApp } from "@/context/app-context";
+import { usePlayerPadding } from "@/hooks/use-player-padding";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { ReactNode, useEffect } from "react";
@@ -80,6 +81,7 @@ export default function AnimatedHeader({
       duration: 300,
     });
   }, [maxHeight]);
+  const playerPadding = usePlayerPadding();
 
   const onScroll = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
@@ -235,7 +237,7 @@ export default function AnimatedHeader({
         scrollEventThrottle: 16,
         contentContainerStyle: {
           paddingTop: maxHeight + insets.top,
-          paddingBottom: 100 + insets.bottom,
+          paddingBottom: 100 + insets.bottom + playerPadding,
         },
       })}
 

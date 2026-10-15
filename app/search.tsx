@@ -4,6 +4,7 @@ import SearchBar from "@/components/search-bar";
 import { useApp } from "@/context/app-context";
 import { useDB } from "@/context/db-context";
 import { useAppColors } from "@/hooks/use-color";
+import { usePlayerPadding } from "@/hooks/use-player-padding";
 import { Hymn } from "@/types/hymn";
 import { searchHymn } from "@/utils/hymn.util";
 import { Ionicons } from "@expo/vector-icons";
@@ -85,9 +86,9 @@ export default function SearchScreen() {
         <View style={{ flex: 1 }}>
           <SearchBar value={search} onChangeText={setSearch} />
         </View>
-        <TouchableOpacity style={{ marginHorizontal: 10 }} activeOpacity={0.6} onPress={() => { setMaxHeight(showYear ? 110 : 180); setShowYear(!showYear) }}>
+        <TouchableOpacity style={{ marginHorizontal: 10, flexDirection: "column", alignItems: "center", justifyContent: "center" }} activeOpacity={0.6} onPress={() => { setMaxHeight(showYear ? 110 : 180); setShowYear(!showYear) }}>
           <Ionicons name={showYear ? "close" : "filter-sharp"} size={24} color="#fff" />
-          <Text style={[styles.filterText, { color: "#fff" }]}>{selectedYear === "all" ? "Tous" : selectedYear}</Text>
+          <Text style={[styles.filterText, { color: "#fff" }]}>{selectedYear === "all" ? "Rehetra" : selectedYear}</Text>
         </TouchableOpacity>
       </View>
 
@@ -108,7 +109,7 @@ export default function SearchScreen() {
               style={[styles.year, isActive && styles.yearActive]}
             >
               <Text style={[styles.yearText, { color: isActive ? "#cc0000" : "#ffffff" },]} >
-                {year === "JM" ? "Tous" : year}
+                {year === "JM" ? "Rehetra" : year}
               </Text>
             </TouchableOpacity>
           );
@@ -117,6 +118,8 @@ export default function SearchScreen() {
 
     </View>
   );
+
+  const playerPadding = usePlayerPadding();
 
   const data = !isSearching ? flatResults : flatResults.sort((a, b) => Number(a.id) - Number(b.id));
 
@@ -129,7 +132,7 @@ export default function SearchScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           padding: 10,
-          paddingBottom: 40,
+          paddingBottom: 40 + playerPadding,
         }}
         initialNumToRender={12}
         maxToRenderPerBatch={12}

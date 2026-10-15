@@ -12,6 +12,7 @@ import { HymnRow } from "@/components/hymn-row";
 import { useApp } from "@/context/app-context";
 import { useDB } from "@/context/db-context";
 import { useAppColors } from "@/hooks/use-color";
+import { usePlayerPadding } from "@/hooks/use-player-padding";
 import { Hymn } from "@/types/hymn";
 
 const data = hymnes as Hymn[];
@@ -22,6 +23,7 @@ export default function FavoritesScreen() {
   const { text, muted, } = useAppColors(isDark);
 
   const favoriteHymns = favorites.sort((a, b) => Number(a.id) - Number(b.id));
+  const playerPadding = usePlayerPadding();
 
   return (
     <AppHeader
@@ -30,10 +32,10 @@ export default function FavoritesScreen() {
           <View style={styles.header}>
             <View>
               <Text style={[styles.title, { color: "#fff" }]}>
-                Favoris
+                Ireo tiako
               </Text>
               <Text style={[styles.count, { color: "#d8d8d8" }]}>
-                {favoriteHymns.length} chanson{favoriteHymns.length > 1 && "s"}
+                {favoriteHymns.length} tonokira
               </Text>
             </View>
             <View style={styles.headerIcon}>
@@ -49,7 +51,7 @@ export default function FavoritesScreen() {
         contentContainerStyle={{
           padding: 6,
           paddingTop: 5,
-          paddingBottom: 100,
+          paddingBottom: 100 + playerPadding,
         }}
         renderItem={({ item }) => (
           <HymnRow
@@ -63,7 +65,7 @@ export default function FavoritesScreen() {
             <Ionicons name="heart-outline" size={60} color="#A2ACB7" />
 
             <Text style={[styles.emptyTitle, { color: text },]} >
-              Tsy mbola misy favoris
+              Tsy mbola misy tiako
             </Text>
 
             <Text style={[styles.emptyText, { color: muted },]} >

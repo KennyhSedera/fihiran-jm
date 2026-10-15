@@ -12,6 +12,7 @@ import hymnes from "@/assets/json/fihirana_jm.json";
 import AppHeader from "@/components/app-header";
 import { HymnRow } from "@/components/hymn-row";
 import { useDB } from "@/context/db-context";
+import { usePlayerPadding } from "@/hooks/use-player-padding";
 import { getMainCategory, Hymn } from "@/types/hymn";
 
 const data = hymnes as Hymn[];
@@ -25,11 +26,8 @@ export default function CategoryScreen() {
   }>();
 
   const decodedCategory = decodeURIComponent(category ?? "");
+  const playerPadding = usePlayerPadding();
 
-  /**
-   * On transforme chaque catégorie originale
-   * en catégorie principale avant de filtrer.
-   */
   const hymns = data
     .filter(
       (item) => getMainCategory(item.category) === decodedCategory
@@ -38,6 +36,7 @@ export default function CategoryScreen() {
 
   return (
     <AppHeader
+      height={100}
       headerContent={
         <View style={styles.header}>
           <TouchableOpacity
@@ -56,12 +55,12 @@ export default function CategoryScreen() {
               style={styles.headerTitle}
               numberOfLines={1}
             >
-              {decodedCategory}
+              {decodedCategory === "Autres" ? "Mifangaro" : decodedCategory}
             </Text>
 
             <Text style={styles.headerCount}>
               {hymns.length}{" "}
-              {hymns.length > 1 ? "chants" : "chant"}
+              {"tonokira"}
             </Text>
           </View>
         </View>
@@ -70,7 +69,7 @@ export default function CategoryScreen() {
       <FlatList
         data={hymns}
         keyExtractor={(item) => `${item.id}_${item.year}`}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: 40 + playerPadding }]}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => {
           const favorite = isFavorite(item.id);
